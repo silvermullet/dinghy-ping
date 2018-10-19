@@ -1,4 +1,6 @@
-### Dinghy Ping from 1999 fast foword to K8s
+### Dinghy Ping
+
+![dinghy](https://user-images.githubusercontent.com/538171/47242041-7d96d600-d3a2-11e8-8c55-a04e1249bc46.jpeg)
 
 #### Requirements
 
