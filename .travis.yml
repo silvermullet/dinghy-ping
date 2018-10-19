@@ -21,4 +21,4 @@ jobs:
     - stage: tag latest if master
       if: branch = master
       script:
-      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:latest
+      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping
