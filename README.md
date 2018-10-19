@@ -1,4 +1,4 @@
-### Dinghy Ping from 1999 fastfoward to K8s
+### Dinghy Ping from 1999 fast foword to K8s
 
 #### Requirements
 
