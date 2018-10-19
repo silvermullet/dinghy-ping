@@ -10,9 +10,10 @@ install:
   - pipenv install
 
 jobs:
+  on:
+    branch: master
   include:
     - stage: build docker image
-      if: branch = master
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker build -t dinghy-ping .
