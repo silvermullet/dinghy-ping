@@ -25,4 +25,4 @@ def domain_response_html(req, resp, *, protocol, domain):
     )
 
 if __name__ == '__main__':
-    api.run(address="0.0.0.0", port=8080)
+    api.run(address="0.0.0.0", port=80)
