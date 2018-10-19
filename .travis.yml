@@ -16,5 +16,9 @@ jobs:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker build -t dinghy-ping .
       - docker images
-      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping
+      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:$TRAVIS_BRANCH
       - docker push $DOCKER_USERNAME/dinghy-ping
+    - stage: tag latest if master
+      if: branch = master
+      script:
+      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:latest
