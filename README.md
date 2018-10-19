@@ -15,6 +15,6 @@
 
 ```
 docker build . --tag dinghy:latest
-docker run -p 5042:5042 dinghy:latest
+docker run -p 80:80 dinghy:latest
 curl http://127.0.0.1:5042/dinghy/ping/https/google.com
 ```
