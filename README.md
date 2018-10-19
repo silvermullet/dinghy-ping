@@ -4,6 +4,12 @@
 
 ![dinghy](https://user-images.githubusercontent.com/538171/47242041-7d96d600-d3a2-11e8-8c55-a04e1249bc46.jpeg)
 
+#### Docker Run as Daemon
+
+```
+docker run -p 80:80 -d sepulworld/dinghy-ping:latest
+```
+
 #### Requirements
 
 ```pipenv install```
@@ -12,8 +18,7 @@
 
 ```python3 api.py```
 
-
-#### Docker
+#### Local Docker Build 
 
 ```
 docker build . --tag dinghy:latest
