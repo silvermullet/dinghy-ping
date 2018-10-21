@@ -1,0 +1,12 @@
+{
+    "domains": [
+      {
+        "protocol": "https",
+        "domain": "google.com"
+      },
+      {
+        "protocol": "https",
+        "domain": "microsoft.com"
+      }
+    ]
+}
