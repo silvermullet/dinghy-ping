@@ -23,5 +23,5 @@ docker run -p 80:80 -d sepulworld/dinghy-ping:latest
 ```
 docker build . --tag dinghy:latest
 docker run -p 80:80 dinghy:latest
-curl http://127.0.0.1:5042/dinghy/ping/https/google.com
+curl http://127.0.0.1/dinghy/ping/https/google.com
 ```
