@@ -27,14 +27,12 @@ async def ping_multiple_domains(req, resp):
     }
 
     Return results
-
     {
       "domains": [
         {
           "protocol": "https",
           "domain": "google.com",
           "domain_response_code": "200",
-          "domain_response_text": "text",
           "domain_response_time_ms": "30.0ms"
           " 
         },
@@ -42,47 +40,30 @@ async def ping_multiple_domains(req, resp):
           "protocol": "https",
           "domain": "microsoft.com"
           "domain_response_code": "200",
-          "domain_response_text": "text",
           "domain_response_time_ms": "200.1ms"
         }
       ]
     }
     """
 
-    results = {}
-    loop = asyncio.get_event_loop()
+    results = {"domains": []}
 
-    """
-    Required to await on req.media per responder docs
-    Need to figure out how to await for req.media and await for background tasks before returning
-    the resp.media results from build_domain_results 
-    """ 
-    data = await req.media()
+    def build_domain_results(protocol, request_domain, results):
+        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain) 
+        results['domains'].append({ 
+            "protocol": protocol,
+            "domain": request_domain,
+            "domain_response_code": domain_response_code,
+            "domain_response_time_ms": domain_response_time_ms
+        })
     
-    @api.background.task
-    def build_domain_results(data):
+    def gather_results(data): 
         for domain in data['domains']:
             protocol = domain['protocol']
             request_domain = domain['domain']
+            build_domain_results(protocol, request_domain, results)
 
-            # Run background process and append results
-            domain_results = _process_request(protocol, request_domain) 
-            results['domains'].append = {
-                "protocol": protocol,
-                "domain": domain,
-                "domain_response_code": domain_results['domain_response_code'],
-                "domain_response_text": domain_results['domain_response_text'],
-                "domain_response_time_ms": domain_results['domain_response_time_ms']
-            }
-
-    tasks = [
-        asyncio.ensure_future(build_domain_results(data))
-    ]
-
-    loop.run_until_complete(asyncio.wait(tasks))
-
-    # should wait until tasks complete but the return comes before back ground finishes
-    resp.media = results
+    resp.media = {"domains": results, "wait": gather_results(await req.media())}
 
 @api.route("/dinghy/ping/{protocol}/{domain}")
 def domain_response_html(req, resp, *, protocol, domain):
