@@ -30,5 +30,7 @@ docker run -p 80:80 dinghy:latest
 curl http://127.0.0.1/dinghy/ping/https/google.com
 
 # dinghy-ping multiple sites
-curl -vX POST "http://127.0.0.1/dinghy/ping/domains" -d @tests/multiple_domains.json --header "Content-Type: application/json"
+curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
+  -d @tests/multiple_domains.json \
+  --header "Content-Type: application/json"
 ```
