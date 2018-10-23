@@ -16,8 +16,8 @@ jobs:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker build -t dinghy-ping .
       - docker images
-      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:$TRAVIS_BUILD_NUMBER
-      - docker push $DOCKER_USERNAME/dinghy-ping:$TRAVIS_BUILD_NUMBER
+      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:build_$TRAVIS_BUILD_NUMBER
+      - docker push $DOCKER_USERNAME/dinghy-ping:build_$TRAVIS_BUILD_NUMBER
 
     - stage: build docker image latest and git tag version it
       if: branch = master
@@ -25,8 +25,8 @@ jobs:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
       - docker build -t dinghy-ping .
       - docker images
-      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:$TRAVIS_PULL_REQUEST
-      - docker push $DOCKER_USERNAME/dinghy-ping:$TRAVIS_PULL_REQUEST
+      - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:pr_$TRAVIS_PULL_REQUEST
+      - docker push $DOCKER_USERNAME/dinghy-ping:pr_$TRAVIS_PULL_REQUEST
       if: branch = master and tag IS present
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
