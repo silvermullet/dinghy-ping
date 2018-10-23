@@ -20,8 +20,15 @@ docker run -p 80:80 -d sepulworld/dinghy-ping:latest
 
 #### Local Docker Build 
 
-```
+```bash
 docker build . --tag dinghy:latest
 docker run -p 80:80 dinghy:latest
-curl http://127.0.0.1:5042/dinghy/ping/https/google.com
+```
+
+```bash
+# dinghy-ping a single endpoint
+curl http://127.0.0.1/dinghy/ping/https/google.com
+
+# dinghy-ping multiple sites
+curl -vX POST "http://127.0.0.1/dinghy/ping/domains" -d @tests/multiple_domains.json --header "Content-Type: application/json"
 ```
