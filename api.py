@@ -2,7 +2,7 @@ import responder
 import requests
 import asyncio
 
-api = responder.API()
+api = responder.API(title="Dinghy Ping", version="1.0", openapi="3.0.0", docs_route="/docs")
 
 @api.route("/dinghy")
 def dinghy_html(req, resp):
