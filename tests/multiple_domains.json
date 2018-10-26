@@ -5,6 +5,10 @@
         "domain": "google.com"
       },
       {
+	"protocol": "https",
+	"domain": "www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8"
+      },
+      {
         "protocol": "https",
         "domain": "microsoft.com"
       }
