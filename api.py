@@ -72,7 +72,7 @@ def domain_response_html(req, resp, *, protocol, domain):
     response containts status_code, body text and response_time_ms
     """
 
-    domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, domain)
+    domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, domain, req.params)
 
     resp.content = api.template(
             'ping_response.html',
@@ -82,12 +82,12 @@ def domain_response_html(req, resp, *, protocol, domain):
             domain_response_time_ms=domain_response_time_ms
     )
 
-def _process_request(protocol, domain):
+def _process_request(protocol, domain, params):
     """
     Internal method to run request process, takes protocol and domain for input
     """
     
-    r = requests.get(f'{protocol}://{domain}')
+    r = requests.get(f'{protocol}://{domain}', params=params)
 
     domain_response_code = r.status_code
     domain_response_text = r.text

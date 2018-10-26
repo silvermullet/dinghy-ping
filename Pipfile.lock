@@ -132,10 +132,9 @@
         },
         "itsdangerous": {
             "hashes": [
-                "sha256:a7de3201740a857380421ef286166134e10fe58846bcefbc9d6424a69a0b99ec",
-                "sha256:aca4fc561b7671115a2156f625f2eaa5e0e3527e0adf2870340e7968c0a81f85"
+                "sha256:cbb3fcf8d3e33df861709ecaf89d9e6629cff0a217bc2848f1b41cd30d360519"
             ],
-            "version": "==1.0.0"
+            "version": "==0.24"
         },
         "jinja2": {
             "hashes": [
@@ -202,11 +201,11 @@
         },
         "responder": {
             "hashes": [
-                "sha256:9e7b4ed222d3f38e3aea4a87ff813a59869683f0d294eb09f25946189b5b7847",
-                "sha256:c54e1d83a59d597f7bfca8fb2463664d3e07d2f7a2c8b5f055b41f52b21f55e7"
+                "sha256:dcfa84d7d7d41fdf6d0c0e88ac046b4eda9738ddad17af1c0552e1d82b9876d6",
+                "sha256:ebade11c817e104dab95e7d7f6c54124c7cacc08847fbde7108edf2a45722757"
             ],
             "index": "pypi",
-            "version": "==0.3.1"
+            "version": "==1.0.1"
         },
         "rfc3986": {
             "hashes": [
