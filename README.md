@@ -18,7 +18,7 @@ docker run -p 80:80 -d sepulworld/dinghy-ping:latest
 
 ```python3 api.py```
 
-#### Local Docker Build 
+#### Local Docker Build
 
 ```bash
 docker build . --tag dinghy:latest
@@ -33,4 +33,10 @@ curl http://127.0.0.1/dinghy/ping/https/google.com
 curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
   -d @tests/multiple_domains.json \
   --header "Content-Type: application/json"
+```
+
+#### Helm Install
+
+```
+helm install -n dinghy-ping ./helm/dinghy-ping
 ```
