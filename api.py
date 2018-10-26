@@ -49,7 +49,7 @@ async def ping_multiple_domains(req, resp):
     results = {"domains": []}
 
     def build_domain_results(protocol, request_domain, results):
-        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain) 
+        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params) 
         results['domains'].append({ 
             "protocol": protocol,
             "domain": request_domain,
