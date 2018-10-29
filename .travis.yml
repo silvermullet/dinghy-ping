@@ -7,10 +7,12 @@ before_install:
 
 install:
   - pip install pipenv
-  - pipenv install
+  - pipenv install --dev
 
 jobs:
   include:
+    - stage: run tests
+      script: pytest tests/ --disable-pytest-warnings 
     - stage: build docker image
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
@@ -18,7 +20,7 @@ jobs:
       - docker images
       - docker tag dinghy-ping $DOCKER_USERNAME/dinghy-ping:build_$TRAVIS_BUILD_NUMBER
       - docker push $DOCKER_USERNAME/dinghy-ping:build_$TRAVIS_BUILD_NUMBER
-    - stage: build docker image latest and git tag version it
+    - stage: build docker image and tag with pull request number (pr_PULL_REQUEST)
       if: branch = master
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
