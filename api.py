@@ -46,11 +46,11 @@ async def ping_multiple_domains(req, resp):
     }
     """
 
-    results = {"domains": []}
+    results = []
 
     def build_domain_results(protocol, request_domain, results):
         domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params) 
-        results['domains'].append({ 
+        results.append({ 
             "protocol": protocol,
             "domain": request_domain,
             "domain_response_code": domain_response_code,
@@ -63,7 +63,7 @@ async def ping_multiple_domains(req, resp):
             request_domain = domain['domain']
             build_domain_results(protocol, request_domain, results)
 
-    resp.media = {"domains": results, "wait": gather_results(await req.media())}
+    resp.media = {"domains_response_results": results, "wait": gather_results(await req.media())}
 
 @api.route("/dinghy/ping/{protocol}/{domain}")
 def domain_response_html(req, resp, *, protocol, domain):
