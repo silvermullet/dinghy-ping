@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.4 (2018-10-29)
+
+- [Zane Williamson] - Better error handling on request process 
+
 ## v0.0.3 (2018-10-28)
 
 - [Zane Williamson] - Refactor multiple domain response, adding intial pytests 

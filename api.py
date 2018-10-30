@@ -86,14 +86,28 @@ def _process_request(protocol, domain, params):
     """
     Internal method to run request process, takes protocol and domain for input
     """
-    
-    r = requests.get(f'{protocol}://{domain}', params=params)
 
+    domain_response_code = "" 
+    domain_response_text = ""
+    domain_response_time_ms = ""
+
+    try:
+        r = requests.get(f'{protocol}://{domain}', params=params)
+    except requests.exceptions.Timeout as err:
+        domain_response_text = f'Timeout: {err}'
+        return domain_response_code, domain_response_text, domain_response_time_ms
+    except requests.exceptions.TooManyRedirects as err:
+        domain_response_text = f'TooManyRedirects: {err}'
+        return domain_response_code, domain_response_text, domain_response_time_ms
+    except requests.exceptions.RequestException as err:
+        domain_response_text = f'RequestException: {err}'
+        return domain_response_code, domain_response_text, domain_response_time_ms
+    
     domain_response_code = r.status_code
     domain_response_text = r.text
     domain_response_time_ms = r.elapsed.microseconds / 1000
-
     return domain_response_code, domain_response_text, domain_response_time_ms
+
 
 if __name__ == '__main__':
     api.run(address="0.0.0.0", port=80, debug=True)
