@@ -1,10 +1,11 @@
 import responder
 import requests
 import asyncio
+from urllib.parse import urlparse
 
 api = responder.API(title="Dinghy Ping", version="1.0", openapi="3.0.0", docs_route="/docs")
 
-@api.route("/dinghy")
+@api.route("/")
 def dinghy_html(req, resp):
     resp.content = api.template('ping_input.html')
 
@@ -34,7 +35,7 @@ async def ping_multiple_domains(req, resp):
           "domain": "google.com",
           "domain_response_code": "200",
           "domain_response_time_ms": "30.0ms"
-          " 
+          "
         },
         {
           "protocol": "https",
@@ -49,15 +50,15 @@ async def ping_multiple_domains(req, resp):
     results = []
 
     def build_domain_results(protocol, request_domain, results):
-        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params) 
-        results.append({ 
+        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params)
+        results.append({
             "protocol": protocol,
             "domain": request_domain,
             "domain_response_code": domain_response_code,
             "domain_response_time_ms": domain_response_time_ms
         })
-    
-    def gather_results(data): 
+
+    def gather_results(data):
         for domain in data['domains']:
             protocol = domain['protocol']
             request_domain = domain['domain']
@@ -82,12 +83,25 @@ def domain_response_html(req, resp, *, protocol, domain):
             domain_response_time_ms=domain_response_time_ms
     )
 
+@api.route("/dinghy/form-input")
+def form_input(req, resp):
+    url = urlparse(req.params['url'])
+    domain_response_code, domain_response_text, domain_response_time_ms = _process_request(url.scheme, url.netloc + url.path, url.params)
+
+    resp.content = api.template(
+            'ping_response.html',
+            domain=url.netloc,
+            domain_response_code=domain_response_code,
+            domain_response_text=domain_response_text,
+            domain_response_time_ms=domain_response_time_ms
+    )
+
 def _process_request(protocol, domain, params):
     """
     Internal method to run request process, takes protocol and domain for input
     """
 
-    domain_response_code = "" 
+    domain_response_code = ""
     domain_response_text = ""
     domain_response_time_ms = ""
 
@@ -102,7 +116,7 @@ def _process_request(protocol, domain, params):
     except requests.exceptions.RequestException as err:
         domain_response_text = f'RequestException: {err}'
         return domain_response_code, domain_response_text, domain_response_time_ms
-    
+
     domain_response_code = r.status_code
     domain_response_text = r.text
     domain_response_time_ms = r.elapsed.microseconds / 1000

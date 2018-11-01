@@ -5,32 +5,37 @@
     <title>Dinghy Ping</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
+    <style>
+      input[type=text] {
+        width: 340px;
+        padding: 12px 20px;
+        margin: 8px 0;
+        box-sizing: border-box;
+      }
+      input[type=button], input[type=submit], input[type=reset] {
+        background-color: #4CAF50;
+        border: none;
+        color: white;
+        padding: 16px 32px;
+        text-decoration: none;
+        margin: 4px 2px;
+        cursor: pointer;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
       <h1>Dinghy Ping</h1>
       <br>
-      <div id="content"></div>
+      <div id="content">
+
+        <form action="/dinghy/form-input">
+          URL: <input type="text" name="url"><br>
+          <input type="submit" value="Ping">
+        </form>
+
+      </div>
     </div>
     <!-- scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.1.0/react-dom.min.js"></script>
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
-    <script type="text/jsx">
-
-      /*** @jsx React.DOM */
-
-      var realPython = React.createClass({
-        render: function() {
-          return (<h2>Dingy Ping</h2>);
-        }
-      });
-
-      ReactDOM.render(
-        React.createElement(realPython, null),
-        document.getElementById('content')
-      );
-
-    </script>
   </body>
 </html>
