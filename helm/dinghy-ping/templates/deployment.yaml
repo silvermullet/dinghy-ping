@@ -29,11 +29,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /dinghy
+              path: /
               port: http
           readinessProbe:
             httpGet:
-              path: /dinghy
+              path: /
               port: http
           resources:
 {{ toYaml .Values.resources | indent 12 }}
