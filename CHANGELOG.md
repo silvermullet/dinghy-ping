@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.7 (2018-11-13)
+
+- [Zane Williamson] - Spruce up ping response template, using Tailwind CSS
+
 ## v0.0.6 (2018-11-13)
 
 - [Zane Williamson]

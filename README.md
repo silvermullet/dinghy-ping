@@ -4,6 +4,8 @@
 
 ![dinghy](https://user-images.githubusercontent.com/538171/47242041-7d96d600-d3a2-11e8-8c55-a04e1249bc46.jpeg)
 
+<img width="822" alt="screen shot 2018-11-13 at 10 11 15 pm" src="https://user-images.githubusercontent.com/538171/48463557-4d6c0880-e791-11e8-9c31-4555c6282a21.png">
+
 #### Docker Run as Daemon
 
 ```

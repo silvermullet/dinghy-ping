@@ -2,21 +2,29 @@
 <html>
   <head lang="en">
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <title>Dinghy Ping</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
   </head>
   <body>
-    <div class="container">
-      <h1>Dinghy Ping</h1>
-      <br>
-      <div id="content"></div>
+    <br>
+    <div class="max-w-sm rounded overflow-hidden shadow-md border border-green bg-grey-lightest">
+      <div class="px-6 py-4">
+        <h1>Dinghy Ping</h1>
+        <br>
+        <div class="font-bold text-base mb-2">Request: {{ request }}</div>
+        <div class="font-bold text-base mb-2">Response Code: {{ domain_response_code }}</div>
+        <div class="font-bold text-base mb-2">Response Time: {{ domain_response_time_ms }}</div>
+        <div class="text-xs mb-2">Scheme Notes: {{ scheme_notes }}</div>
+      </div>
     </div>
-    <h4>Request: {{ request }}</h4>
-    <h6>Scheme Notes: {{ scheme_notes }}</h6>
-    <h4>Response Code: {{ domain_response_code }}</h4>
-    <h4>Response Time: {{ domain_response_time_ms }}ms</h4>
-    <h4>Response Body:</h4>
-    <p> {{ domain_response_text }} </p>
+    <br>
+    <div class="max-w-lg rounded overflow-hidden shadow-lg border border-green bg-grey-lightest">
+      <div class="px-6 py-4">
+        <div class="font-bold text-base mb-2">Response Body:</div>
+         <p class="text-grey-darkest text-sm"> {{ domain_response_text }} </p>
+      </div>
+    </div>
   </body>
 </html>
