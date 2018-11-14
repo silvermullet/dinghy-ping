@@ -4,6 +4,12 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.6 (2018-11-13)
+
+- [Zane Williamson]
+ * Include full request in ping results page
+ * Set default scheme to https if none requested - fix issue [25](https://github.com/silvermullet/dinghy-ping/issues/25)
+
 ## v0.0.5 (2018-11-01)
 
 - [Ian Morgan] - Form input on landing page. HAWT 

@@ -86,11 +86,17 @@ def domain_response_html(req, resp, *, protocol, domain):
 @api.route("/dinghy/form-input")
 def form_input(req, resp):
     url = urlparse(req.params['url'])
+    if url.scheme == "":
+        scheme_notes = "Scheme not given, defaulting to https"
+    else:
+        scheme_notes = f'Scheme {url.scheme} provided'
+
     domain_response_code, domain_response_text, domain_response_time_ms = _process_request(url.scheme, url.netloc + url.path, url.params)
 
     resp.content = api.template(
             'ping_response.html',
-            domain=url.netloc,
+            request=f'{req.params["url"]}',
+            scheme_notes=scheme_notes,
             domain_response_code=domain_response_code,
             domain_response_text=domain_response_text,
             domain_response_time_ms=domain_response_time_ms
@@ -100,6 +106,9 @@ def _process_request(protocol, domain, params):
     """
     Internal method to run request process, takes protocol and domain for input
     """
+    
+    if protocol == "":
+        protocol = "https"
 
     domain_response_code = ""
     domain_response_text = ""
