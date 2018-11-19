@@ -4,6 +4,11 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.8 (2018-11-19)
+
+- [Zane Williamson] - Add link back to search form 
+- [Ian Morgan] - Fix timeout issue in Issue [28](https://github.com/silvermullet/dinghy-ping/issues/28)
+
 ## v0.0.7 (2018-11-13)
 
 - [Zane Williamson] - Spruce up ping response template, using Tailwind CSS
