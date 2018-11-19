@@ -19,7 +19,21 @@ spec:
         app: {{ include "dinghy-ping.name" . }}
         release: {{ .Release.Name }}
     spec:
+      volumes:
+        - name: redis-volume
+          persistentVolumeClaim:
+            claimName: redis-volume-claim
       containers:
+        - name: redis
+          image: redis:3.2-alpine
+          imagePullPolicy: Always
+          args: ["--appendonly", "yes", "--save", "30", "1"]
+          ports:
+            - containerPort: 6379
+              name: redis
+          volumeMounts:
+            - name: redis-volume
+              mountPath: /data
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
