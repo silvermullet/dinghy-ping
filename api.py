@@ -115,7 +115,7 @@ def _process_request(protocol, domain, params):
     domain_response_time_ms = ""
 
     try:
-        r = requests.get(f'{protocol}://{domain}', params=params)
+        r = requests.get(f'{protocol}://{domain}', params=params, timeout=5)
     except requests.exceptions.Timeout as err:
         domain_response_text = f'Timeout: {err}'
         return domain_response_code, domain_response_text, domain_response_time_ms
