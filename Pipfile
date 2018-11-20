@@ -5,6 +5,7 @@ name = "pypi"
 
 [packages]
 responder = "*"
+redis = "*"
 
 [dev-packages]
 pylint = "*"
