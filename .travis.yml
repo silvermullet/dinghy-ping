@@ -12,6 +12,13 @@ install:
 jobs:
   include:
     - stage: run tests
+      install:
+          - git clone --depth=1 https://github.com/antirez/redis.git && cd redis && make && cd ..
+          - git clone --depth=1 https://github.com/RedisLabsModules/ReJSON.git && cd ReJSON && make && cd ..
+          - pip install pipenv
+          - pipenv install --dev
+      before_script:
+          - ./redis/src/redis-server --loadmodule ReJSON/src/rejson.so &
       script: pytest tests/ --disable-pytest-warnings 
     - stage: build docker image
       script:

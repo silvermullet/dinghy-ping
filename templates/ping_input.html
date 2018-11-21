@@ -2,6 +2,7 @@
 <html>
   <head lang="en">
     <meta charset="UTF-8">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <title>Dinghy Ping</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
@@ -24,16 +25,26 @@
     </style>
   </head>
   <body>
-    <div class="container">
+    <div class="px-6 py-4 max-w-sm rounded overflow-hidden shadow-md border border-green bg-grey-lightest">
       <h1>Dinghy Ping</h1>
       <br>
       <div id="content">
 
         <form action="/dinghy/form-input">
-          URL: <input type="text" name="url"><br>
+          URL: <input type="text" name="url" required><br>
           <input type="submit" value="Ping">
         </form>
 
+      </div>
+    </div>
+    <br>
+    <div class="max-w-lg rounded overflow-hidden shadow-lg border border-green bg-grey-lightest">
+      <div class="px-6 py-4 list-reset">
+        <h3>Dinghy Ping History</h3>
+        <br>
+        {% for n in get_all_pinged_urls %}
+            <li>{{n}}</li>
+        {% endfor %}
       </div>
     </div>
     <!-- scripts -->
