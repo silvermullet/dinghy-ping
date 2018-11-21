@@ -4,6 +4,8 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.9 (2018-11-22)
+
 - [Zane Williamson] - Add redis support for storing and retrieving ping results, present history on input page
 - [Ian Morgan] - Adding redis side car with pvc to Helm chart 
 
