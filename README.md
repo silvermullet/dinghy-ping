@@ -53,5 +53,29 @@ curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
 #### Helm Install
 
 ```
-helm install -n dinghy-ping ./helm/dinghy-ping
+helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.0.9 --set ingress.subdomain="yourhostname.net"
 ```
+
+#### Local development on Mac with Docker controlled K8s
+
+##### Install Docker for MacOS and enable Kubernetes
+
+```
+# Install ingress-nginx
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/mandatory.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/provider/cloud-generic.yaml
+```
+
+##### Update your /etc/hosts
+```
+127.0.0.1 localhost dinghy-ping.localhost
+```
+
+##### Install dinghy-ping helm chart, modify to docker image tag of your branch, pr, or release tag
+```
+helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.0.9 --set ingress.subdomain="localhost"
+```
+
+##### Navigate to Dinghy-Ping in browser
+http://dinghy-ping.localhost
+
