@@ -78,5 +78,4 @@ helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.0.9 --
 
 ##### Navigate to Dinghy-Ping in browser
 http://dinghy-ping.localhost
-```
 
