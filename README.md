@@ -53,7 +53,7 @@ curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
 #### Helm Install
 
 ```
-helm install -n dinghy-ping ./helm/dinghy-ping
+helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.0.9 --set ingress.subdomain="yourhostname.net"
 ```
 
 #### Local development on Mac with Docker controlled K8s
