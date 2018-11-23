@@ -42,8 +42,11 @@
       <div class="px-6 py-4 list-reset">
         <h3>Dinghy Ping History</h3>
         <br>
-        {% for n in get_all_pinged_urls %}
-            <li>{{n}}</li>
+        <table class="table-auto">
+        {% for k, v in get_all_pinged_urls.items() %}
+            <tr>
+              <td><div class="text-sm">{{k}} {{v}}</div></td>
+            </tr>
         {% endfor %}
       </div>
     </div>

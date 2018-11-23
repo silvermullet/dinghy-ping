@@ -13,6 +13,7 @@ redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
 
 @api.route("/")
 def dinghy_html(req, resp):
+    """Index route to Dinghy-ping input html form"""
     resp.content = api.template(
         'ping_input.html',
         get_all_pinged_urls=_get_all_pinged_urls()
@@ -97,6 +98,7 @@ def domain_response_html(req, resp, *, protocol, domain):
 
 @api.route("/dinghy/form-input")
 def form_input(req, resp):
+    """Dinghy-ping html input form"""
     url = urlparse(req.params['url'])
     if url.scheme == "":
         scheme_notes = "Scheme not given, defaulting to https"
@@ -149,9 +151,11 @@ def _process_request(protocol, domain, params):
     return domain_response_code, domain_response_text, domain_response_time_ms
 
 def _get_all_pinged_urls():
+    """Get pinged URLs from Dinghy-ping data module"""
     p = data.DinghyData(redis_host)
 
     return p.get_all_pinged_urls()
+
 
 if __name__ == '__main__':
     api.run(address="0.0.0.0", port=80, debug=True)

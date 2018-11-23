@@ -40,13 +40,16 @@ class DinghyData:
 
     def get_all_pinged_urls(self):
         """Get all ping results and return in JSON"""
-        results = []
+        results = {}
         r = redis.StrictRedis(host=self.redis_host)
 
         try:
             for key in r.scan_iter("url:*"):
-                results.append(key.decode('utf-8').strip('url:'))
+                value = json.loads(r.execute_command('JSON.GET', key))
+                results[key.decode('utf-8').strip('url:')] = (
+                    f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms'
+                )
         except key.ResponseError as err:
             print(f"ResponseError: {err}")
-        
+
         return results
