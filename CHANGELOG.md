@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.10 (2018-11-22)
+
+- [Zane Williamson] - Adding response code and response time to history
+
 ## v0.0.9 (2018-11-22)
 
 - [Zane Williamson] - Add redis support for storing and retrieving ping results, present history on input page
