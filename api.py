@@ -1,9 +1,16 @@
 import responder
 import requests
+from prometheus_client import Counter, Summary, start_http_server
+import time
 import asyncio
 import os
 import data
 from urllib.parse import urlparse
+
+# Prometheus metrics
+COMPLETED_REQUEST_COUNTER = Counter('dingy_pings_completed', 'Count of completed dinghy ping requests')
+FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy ping requests')
+REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
 
 api = responder.API(title="Dinghy Ping", version="1.0", openapi="3.0.0", docs_route="/docs")
 
@@ -117,6 +124,7 @@ def form_input(req, resp):
     )
 
 
+@REQUEST_TIME.time()
 def _process_request(protocol, domain, params):
     """
     Internal method to run request process, takes protocol and domain for input
@@ -131,14 +139,18 @@ def _process_request(protocol, domain, params):
 
     try:
         r = requests.get(f'{protocol}://{domain}', params=params, timeout=5)
+        COMPLETED_REQUEST_COUNTER.inc()
     except requests.exceptions.Timeout as err:
         domain_response_text = f'Timeout: {err}'
+        FAILED_REQUEST_COUNTER.inc()
         return domain_response_code, domain_response_text, domain_response_time_ms
     except requests.exceptions.TooManyRedirects as err:
         domain_response_text = f'TooManyRedirects: {err}'
+        FAILED_REQUEST_COUNTER.inc()
         return domain_response_code, domain_response_text, domain_response_time_ms
     except requests.exceptions.RequestException as err:
         domain_response_text = f'RequestException: {err}'
+        FAILED_REQUEST_COUNTER.inc()
         return domain_response_code, domain_response_text, domain_response_time_ms
 
     domain_response_code = r.status_code
@@ -158,4 +170,5 @@ def _get_all_pinged_urls():
 
 
 if __name__ == '__main__':
+    start_http_server(8000)
     api.run(address="0.0.0.0", port=80, debug=True)
