@@ -8,11 +8,6 @@ Dinghy Ping is a simple network debugging interface meant to be deployed into yo
 
 <img width="469" alt="screen shot 2018-11-15 at 11 16 05 pm" src="https://user-images.githubusercontent.com/538171/48603798-82609280-e92c-11e8-9bb0-9b683bb08da8.png"> <img width="822" alt="screen shot 2018-11-13 at 10 11 15 pm" src="https://user-images.githubusercontent.com/538171/48463557-4d6c0880-e791-11e8-9c31-4555c6282a21.png">
 
-#### Docker Run as Daemon
-
-```
-docker run -p 80:80 -d sepulworld/dinghy-ping:latest
-```
 
 #### Requirements
 
@@ -22,11 +17,20 @@ docker run -p 80:80 -d sepulworld/dinghy-ping:latest
 
 ```python3 api.py```
 
-#### Local Docker Build
+#### Local Docker Build and Run
 
 ```bash
+# start local redis instance, with rejson module support
+docker run -p 6379:6379 -d redislabs/rejson:latest
+
+# build and start dinghy-ping from local code
 docker build . --tag dinghy:latest
-docker run -p 80:80 dinghy:latest
+
+# on MacOS 
+docker run -p 80:80 -p 8000:8000 -e "REDIS_HOST=host.docker.internal" dinghy:latest
+
+# non-MacOS
+docker run -p 80:80 -p 8000:8000 dinghy:latest
 ```
 
 #### Dinghy ping single endpoint

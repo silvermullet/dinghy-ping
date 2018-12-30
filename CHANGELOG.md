@@ -4,6 +4,13 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.11 (2018-12-29)
+
+- [Zane Williamson]
+  * Exposing Prometheus metrics
+  * Fix starlette dependency version issue (see here)[https://github.com/kennethreitz/responder/issues/266]
+  * Updating local development docs
+
 ## v0.0.10 (2018-11-22)
 
 - [Zane Williamson] - Adding response code and response time to history
