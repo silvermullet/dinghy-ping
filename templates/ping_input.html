@@ -5,36 +5,26 @@
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
     <title>Dinghy Ping</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- styles -->
-    <style>
-      input[type=text] {
-        width: 340px;
-        padding: 12px 20px;
-        margin: 8px 0;
-        box-sizing: border-box;
-      }
-      input[type=button], input[type=submit], input[type=reset] {
-        background-color: #4CAF50;
-        border: none;
-        color: white;
-        padding: 16px 32px;
-        text-decoration: none;
-        margin: 4px 2px;
-        cursor: pointer;
-      }
-    </style>
   </head>
   <body>
     <div class="px-6 py-4 max-w-sm rounded overflow-hidden shadow-md border border-green bg-grey-lightest">
       <h1>Dinghy Ping</h1>
       <br>
       <div id="content">
-
-        <form action="/dinghy/form-input">
-          URL: <input type="text" name="url" required><br>
-          <input type="submit" value="Ping">
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action="/dinghy/form-input">
+          <div class="mb-4">
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
+              URL 
+              <input class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="url" type="text" placeholder="https://" name="url">
+            </label>
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
+              Optional Headers 
+              <input class="shadow appearance-none border border-green rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="headers" type="text" placeholder='{ "Header1": "value1", "Header2": "value2" }' name="headers">
+            </label>
+            <p class="text-black text-xs italic">Provide optional headers as JSON key/value format.</p><br>
+            <input class="bg-green hover:bg-green-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit" value="Ping">
+          </div>
         </form>
-
       </div>
     </div>
     <br>

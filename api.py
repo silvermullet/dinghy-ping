@@ -4,6 +4,7 @@ from prometheus_client import Counter, Summary, start_http_server
 import time
 import asyncio
 import os
+import json
 import data
 from urllib.parse import urlparse
 
@@ -36,7 +37,8 @@ async def ping_multiple_domains(req, resp):
       "domains": [
         {
           "protocol": "https",
-          "domain": "google.com"
+          "domain": "google.com",
+          "headers: { "header1": "valule" }
         },
         {
           "protocol": "https",
@@ -67,8 +69,8 @@ async def ping_multiple_domains(req, resp):
 
     results = []
 
-    def build_domain_results(protocol, request_domain, results):
-        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params)
+    def build_domain_results(protocol, request_domain, results, headers):
+        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params, headers)
         results.append({
             "protocol": protocol,
             "domain": request_domain,
@@ -80,7 +82,8 @@ async def ping_multiple_domains(req, resp):
         for domain in data['domains']:
             protocol = domain['protocol']
             request_domain = domain['domain']
-            build_domain_results(protocol, request_domain, results)
+            headers = data['headers']
+            build_domain_results(protocol, request_domain, results, headers)
 
     resp.media = {"domains_response_results": results, "wait": gather_results(await req.media())}
 
@@ -92,7 +95,10 @@ def domain_response_html(req, resp, *, protocol, domain):
     response containts status_code, body text and response_time_ms
     """
 
-    domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, domain, req.params)
+    headers = {}
+    domain_response_code, domain_response_text, domain_response_time_ms = (
+        _process_request(protocol, domain, req.params, headers)
+    )
 
     resp.content = api.template(
             'ping_response.html',
@@ -107,12 +113,18 @@ def domain_response_html(req, resp, *, protocol, domain):
 def form_input(req, resp):
     """Dinghy-ping html input form"""
     url = urlparse(req.params['url'])
+    if 'headers' in req.params.keys():
+        headers = json.loads(req.params['headers'])
+    else:
+        headers = {}
     if url.scheme == "":
         scheme_notes = "Scheme not given, defaulting to https"
     else:
         scheme_notes = f'Scheme {url.scheme} provided'
 
-    domain_response_code, domain_response_text, domain_response_time_ms = _process_request(url.scheme, url.netloc + url.path, url.query)
+    domain_response_code, domain_response_text, domain_response_time_ms = (
+        _process_request(url.scheme, url.netloc + url.path, url.query, headers)
+    )
 
     resp.content = api.template(
             'ping_response.html',
@@ -125,7 +137,7 @@ def form_input(req, resp):
 
 
 @REQUEST_TIME.time()
-def _process_request(protocol, domain, params):
+def _process_request(protocol, domain, params, headers):
     """
     Internal method to run request process, takes protocol and domain for input
     """
@@ -138,7 +150,7 @@ def _process_request(protocol, domain, params):
     domain_response_time_ms = ""
 
     try:
-        r = requests.get(f'{protocol}://{domain}', params=params, timeout=5)
+        r = requests.get(f'{protocol}://{domain}', params=params, timeout=5, headers=headers)
         COMPLETED_REQUEST_COUNTER.inc()
     except requests.exceptions.Timeout as err:
         domain_response_text = f'Timeout: {err}'
