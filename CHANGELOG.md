@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.12 (2019-01-10)
+
+- [Zane Williamson] - Adding header input support, using Tailwind CSS for form
+
 ## v0.0.11 (2018-12-29)
 
 - [Zane Williamson]
