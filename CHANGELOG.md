@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.13 (2019-01-13)
+
+- [Zane Williamson] - Fix https://github.com/silvermullet/dinghy-ping/issues/39, better error handling, deliever results even if redis not available 
+
 ## v0.0.12 (2019-01-10)
 
 - [Zane Williamson] - Adding header input support, using Tailwind CSS for form
