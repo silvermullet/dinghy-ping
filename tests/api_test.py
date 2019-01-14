@@ -3,6 +3,7 @@ import pytest
 import sys
 sys.path.insert(0, './')
 import api as service
+import data
 
 
 with open('tests/multiple_domains.json') as f:
@@ -50,3 +51,9 @@ def test_multiple_domains_request_for_microsoft(api):
     r = api.requests.post(api.url_for("ping_multiple_domains"), json=multiple_domains)
     response_json = r.json()
     assert response_json['domains_response_results'][2]['domain_response_code'] == 200
+
+
+def test_ping_saved_results(api):
+    api.requests.get("/dinghy/ping/http/www.google.com")
+    p = service._get_all_pinged_urls()
+    assert "http://www.google.com/" in p 
