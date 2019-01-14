@@ -82,7 +82,7 @@ async def ping_multiple_domains(req, resp):
         for domain in data['domains']:
             protocol = domain['protocol']
             request_domain = domain['domain']
-            headers = data['headers']
+            headers = domain['headers']
             build_domain_results(protocol, request_domain, results, headers)
 
     resp.media = {"domains_response_results": results, "wait": gather_results(await req.media())}
