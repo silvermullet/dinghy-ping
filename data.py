@@ -14,17 +14,22 @@ class DinghyData:
     def save_ping(self):
         """Save ping time (ms) and code to request_url object"""
         r = redis.StrictRedis(host=self.redis_host)
-        r.execute_command(
-            'JSON.SET', 
-            f'url:{self.request_url}', 
-            '.', 
-            json.dumps(
-                {
-                    "response_time_ms": self.domain_response_time_ms,
-                    "response_code": self.domain_response_code
-                }
+        try:
+            r.execute_command(
+                'JSON.SET', 
+                f'url:{self.request_url}', 
+                '.', 
+                json.dumps(
+                    {
+                        "response_time_ms": self.domain_response_time_ms,
+                        "response_code": self.domain_response_code
+                    }
+                )
             )
-        )
+        except redis.exceptions.ConnectionError as err:
+            print(f'Connection Error to Redis: {err}')
+        except redis.exceptions.ResponseError as err:
+            print(f"Redis ResponseError: {err}")
 
 
     def get_ping(self):
@@ -49,7 +54,9 @@ class DinghyData:
                 results[key.decode('utf-8').strip('url:')] = (
                     f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms'
                 )
-        except key.ResponseError as err:
-            print(f"ResponseError: {err}")
+        except redis.exceptions.ConnectionError as err:
+            print(f'Connection Error to Redis: {err}')
+        except redis.exceptions.ResponseError as err:
+            print(f"Redis ResponseError: {err}")
 
         return results
