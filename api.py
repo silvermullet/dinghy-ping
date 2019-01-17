@@ -3,9 +3,11 @@ import requests
 from prometheus_client import Counter, Summary, start_http_server
 import time
 import asyncio
+import concurrent.futures
 import os
 import json
 import data
+import socket
 from urllib.parse import urlparse
 
 # Prometheus metrics
@@ -111,7 +113,7 @@ def domain_response_html(req, resp, *, protocol, domain):
 
 @api.route("/dinghy/form-input")
 def form_input(req, resp):
-    """Dinghy-ping html input form"""
+    """Dinghy-ping html input form for http connection"""
     url = urlparse(req.params['url'])
     if 'headers' in req.params.keys():
         headers = json.loads(req.params['headers'])
@@ -135,6 +137,41 @@ def form_input(req, resp):
             domain_response_time_ms=domain_response_time_ms
     )
 
+@api.route("/dinghy/form-input-tcp-connetion-test")
+def form_input_tcp_connection_test(req, resp):
+    """Dinghy-ping html input form for tcp connection"""
+    # refactor with https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.create_connection 
+    
+    def tcp_ping_client(tcp_endpoint, tcp_port):
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        try:
+            s.setblocking(0)
+            s.connect_ex((tcp_endpoint, tcp_port))
+            connection_status = "Able to connect!"
+            peer_info = s.getpeername()
+            s.close()
+            return {
+                "connection_status": connection_status,
+                "peer_info": peer_info 
+            }
+        except socket.timeout as err:
+            print(f'Timeout, {tcp_endpoint} on {tcp_port}')
+            connection_status = "Unable to connect, timeout after 3 sec"
+            peer_info = "None"
+            return {
+                "connection_status": connection_status,
+                "peer_info": peer_info 
+            }
+    
+    tcp_endpoint = urlparse(req.params['tcp-endpoint'])
+    tcp_port = urlparse(req.params['tcp-port'])
+    resp.content = api.template(
+            'ping_response_tcp_conn.html',
+            request=f'{req.params["tcp-endpoint"]}',
+            port=f'{req.params["tcp-port"]}',
+            connection_results = tcp_ping_client(tcp_endpoint, tcp_port)
+    )
 
 @REQUEST_TIME.time()
 def _process_request(protocol, domain, params, headers):
