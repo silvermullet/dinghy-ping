@@ -19,27 +19,19 @@ spec:
         app: {{ include "dinghy-ping.name" . }}
         release: {{ .Release.Name }}
     spec:
-      volumes:
-        - name: redis-volume
-          persistentVolumeClaim:
-            claimName: redis-volume-claim
       containers:
-        - name: redis
-          image: redislabs/rejson:latest
-          imagePullPolicy: Always
-          args: ["--appendonly", "yes", "--save", "30", "1", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
-          ports:
-            - containerPort: 6379
-              name: redis
-          volumeMounts:
-            - name: redis-volume
-              mountPath: /data
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: REDIS_HOST
+              value: dinghy-ping-redis
           ports:
             - name: http
               containerPort: 80
+              protocol: TCP
+            - name: metrics 
+              containerPort: 8000
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -49,6 +41,70 @@ spec:
             httpGet:
               path: /
               port: http
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+---
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}-redis
+  labels:
+    app: {{ include "dinghy-ping.name" . }}-redis
+    chart: {{ include "dinghy-ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "dinghy-ping.name" . }}-redis
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dinghy-ping.name" . }}-redis
+        release: {{ .Release.Name }}
+      annotations:
+        sidecar.istio.io/inject: "true"
+        traffic.sidecar.istio.io/includeOutboundIPRanges: "100.64.0.0/10,10.255.0.0/16"
+    spec:
+      volumes:
+        - name: redis-volume-{{ .Release.Name }}
+          persistentVolumeClaim:
+            claimName: redis-volume-claim-{{ .Release.Name }}
+      containers:
+        - name: redis-rejson
+          image: redislabs/rejson:latest
+          imagePullPolicy: Always
+          args: ["--appendonly", "yes", "--save", "30", "1", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
+          ports:
+            - containerPort: 6379
+              name: redis-json
+          volumeMounts:
+            - name: redis-volume-{{ .Release.Name }}
+              mountPath: /data
+          livenessProbe:
+            tcpSocket:
+              port: 6379 
+            initialDelaySeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 6379 
+            initialDelaySeconds: 3
+            periodSeconds: 10
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}

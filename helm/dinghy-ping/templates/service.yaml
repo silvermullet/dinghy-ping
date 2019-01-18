@@ -17,3 +17,23 @@ spec:
   selector:
     app: {{ include "dinghy-ping.name" . }}
     release: {{ .Release.Name }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}-redis
+  labels:
+    app: {{ include "dinghy-ping.name" . }}-redis
+    chart: {{ include "dinghy-ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}-redis
+spec:
+  type: ClusterIP 
+  ports:
+    - port: 6379 
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    app: {{ include "dinghy-ping.name" . }}-redis
+    release: {{ .Release.Name }}
