@@ -12,7 +12,7 @@ metadata:
     heritage: {{ .Release.Service }}
   annotations:
     kubernetes.io/ingress.class: nginx
-    external-dns.alpha.kubernetes.io/hostname: dinghy-ping.{{- .Values.ingress.subdomain }}
+    external-dns.alpha.kubernetes.io/hostname: {{ .Release.Name }}.{{- .Values.ingress.subdomain }}
 spec:
 {{- if .Values.ingress.tls }}
   tls:
@@ -25,7 +25,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-    - host: dinghy-ping.{{- .Values.ingress.subdomain }}
+    - host: {{ .Release.Name }}.{{- .Values.ingress.subdomain }}
       http:
         paths:
           - path: /
