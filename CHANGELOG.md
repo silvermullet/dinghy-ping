@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.14 (2019-01-14)
+
+- [Zane Williamson] - Adding TCP check feature
+
 ## v0.0.13 (2019-01-13)
 
 - [Zane Williamson] - Fix https://github.com/silvermullet/dinghy-ping/issues/39, better error handling, deliever results even if redis not available 

@@ -6,6 +6,8 @@ import asyncio
 import os
 import json
 import data
+import socket
+import logging
 from urllib.parse import urlparse
 
 # Prometheus metrics
@@ -111,7 +113,7 @@ def domain_response_html(req, resp, *, protocol, domain):
 
 @api.route("/dinghy/form-input")
 def form_input(req, resp):
-    """Dinghy-ping html input form"""
+    """Dinghy-ping html input form for http connection"""
     url = urlparse(req.params['url'])
     if 'headers' in req.params.keys():
         headers = json.loads(req.params['headers'])
@@ -135,6 +137,33 @@ def form_input(req, resp):
             domain_response_time_ms=domain_response_time_ms
     )
 
+
+@api.route("/dinghy/form-input-tcp-connection-test")
+async def form_input_tcp_connection_test(req, resp):
+    logging.basicConfig(level=logging.DEBUG)
+    tcp_endpoint = req.params['tcp-endpoint']
+    tcp_port = req.params['tcp-port']
+    loop = asyncio.get_running_loop()
+
+    try:
+        reader, writer = await asyncio.open_connection(host=tcp_endpoint, port=tcp_port)
+        connection_info = f'Connection created to {tcp_endpoint} on port {tcp_port}' 
+        resp.content = api.template(
+            'ping_response_tcp_conn.html',
+            request=tcp_endpoint,
+            port=tcp_port,
+            connection_results = connection_info
+        )
+    except (asyncio.TimeoutError, ConnectionRefusedError):
+        print("Network port not responding")
+        connection_info = f'Failed to connect to {tcp_endpoint} on port {tcp_port}' 
+        resp.status_code = api.status_codes.HTTP_402
+        resp.content = api.template(
+            'ping_response_tcp_conn.html',
+            request=tcp_endpoint,
+            port=tcp_port,
+            connection_results = connection_info
+        )
 
 @REQUEST_TIME.time()
 def _process_request(protocol, domain, params, headers):

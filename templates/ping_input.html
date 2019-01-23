@@ -14,7 +14,7 @@
         <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action="/dinghy/form-input">
           <div class="mb-4">
             <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
-              URL 
+              URL Check
               <input class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="url" type="text" placeholder="https://" name="url">
             </label>
             <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
@@ -22,6 +22,25 @@
               <input class="shadow appearance-none border border-green rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="headers" type="text" placeholder='{ "Header1": "value1", "Header2": "value2" }' name="headers">
             </label>
             <p class="text-black text-xs italic">Provide optional headers as JSON key/value format.</p><br>
+            <input class="bg-green hover:bg-green-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit" value="Ping">
+          </div>
+        </form>
+      </div>
+    </div>
+    <br>
+    <div class="px-6 py-4 max-w-sm rounded overflow-hidden shadow-md border border-green bg-grey-lightest">
+      <div id="content">
+        <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4" action="/dinghy/form-input-tcp-connection-test">
+          <div class="mb-4">
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
+              TCP Endpoint Check 
+              <input class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="tcp-endpoint" type="text" placeholder="domain" name="tcp-endpoint">
+            </label>
+            <label class="block text-grey-darker text-sm font-bold mb-2" for="url">
+              TCP Port
+              <input class="shadow appearance-none border border-green rounded w-full py-2 px-3 text-grey-darker mb-3 leading-tight focus:outline-none focus:shadow-outline" id="tcp-port" type="text" placeholder='3306' name="tcp-port">
+            </label>
+            <p class="text-black text-xs italic">A TCP connectivity test</p><br>
             <input class="bg-green hover:bg-green-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit" value="Ping">
           </div>
         </form>
