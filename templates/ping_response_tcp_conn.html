@@ -15,14 +15,14 @@
         <br>
         <div class="font-bold text-base mb-2">Endpoint Domain: {{ request }}</div>
         <div class="font-bold text-base mb-2">Endpoint Port: {{ port }}</div>
-        <div class="font-bold text-base mb-2">TCP Connection: {{ connection_results['connection_status'] }}</div>
+        <div class="font-bold text-base mb-2">TCP Connection: {{ connection_results }}</div>
       </div>
     </div>
     <br>
     <div class="max-w-lg rounded overflow-hidden shadow-lg border border-green bg-grey-lightest">
       <div class="px-6 py-4">
         <div class="font-bold text-base mb-2">Response Body:</div>
-         <p class="text-grey-darkest text-sm"> {{ connection_results['peer_info'] }} </p>
+         <p class="text-grey-darkest text-sm"> {{ connection_results }} </p>
       </div>
     </div>
   </body>

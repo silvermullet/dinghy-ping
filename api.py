@@ -3,11 +3,11 @@ import requests
 from prometheus_client import Counter, Summary, start_http_server
 import time
 import asyncio
-import concurrent.futures
 import os
 import json
 import data
 import socket
+import logging
 from urllib.parse import urlparse
 
 # Prometheus metrics
@@ -137,41 +137,33 @@ def form_input(req, resp):
             domain_response_time_ms=domain_response_time_ms
     )
 
-@api.route("/dinghy/form-input-tcp-connetion-test")
-def form_input_tcp_connection_test(req, resp):
-    """Dinghy-ping html input form for tcp connection"""
-    # refactor with https://docs.python.org/3/library/asyncio-eventloop.html#asyncio.loop.create_connection 
-    
-    def tcp_ping_client(tcp_endpoint, tcp_port):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        try:
-            s.setblocking(0)
-            s.connect_ex((tcp_endpoint, tcp_port))
-            connection_status = "Able to connect!"
-            peer_info = s.getpeername()
-            s.close()
-            return {
-                "connection_status": connection_status,
-                "peer_info": peer_info 
-            }
-        except socket.timeout as err:
-            print(f'Timeout, {tcp_endpoint} on {tcp_port}')
-            connection_status = "Unable to connect, timeout after 3 sec"
-            peer_info = "None"
-            return {
-                "connection_status": connection_status,
-                "peer_info": peer_info 
-            }
-    
-    tcp_endpoint = urlparse(req.params['tcp-endpoint'])
-    tcp_port = urlparse(req.params['tcp-port'])
-    resp.content = api.template(
+@api.route("/dinghy/form-input-tcp-connection-test")
+async def form_input_tcp_connection_test(req, resp):
+    logging.basicConfig(level=logging.DEBUG)
+    tcp_endpoint = req.params['tcp-endpoint']
+    tcp_port = req.params['tcp-port']
+    loop = asyncio.get_running_loop()
+
+    try:
+        reader, writer = await asyncio.open_connection(host=tcp_endpoint, port=tcp_port)
+        connection_info = f'Connection created to {tcp_endpoint} on port {tcp_port}' 
+        resp.content = api.template(
             'ping_response_tcp_conn.html',
-            request=f'{req.params["tcp-endpoint"]}',
-            port=f'{req.params["tcp-port"]}',
-            connection_results = tcp_ping_client(tcp_endpoint, tcp_port)
-    )
+            request=tcp_endpoint,
+            port=tcp_port,
+            connection_results = connection_info
+        )
+    except (asyncio.TimeoutError, ConnectionRefusedError):
+        print("Network port not responding")
+        connection_info = f'Failed to connect to {tcp_endpoint} on port {tcp_port}' 
+        resp.status_code = api.status_codes.HTTP_402
+        resp.content = api.template(
+            'ping_response_tcp_conn.html',
+            request=tcp_endpoint,
+            port=tcp_port,
+            connection_results = connection_info
+        )
 
 @REQUEST_TIME.time()
 def _process_request(protocol, domain, params, headers):
