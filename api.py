@@ -148,6 +148,12 @@ async def form_input_tcp_connection_test(req, resp):
     try:
         reader, writer = await asyncio.open_connection(host=tcp_endpoint, port=tcp_port)
         connection_info = f'Connection created to {tcp_endpoint} on port {tcp_port}' 
+        d = data.DinghyData(redis_host,
+            domain_response_code=None,
+            domain_response_time_ms=None,
+            request_url=f'{tcp_endpoint}:{tcp_port}'
+        )
+        d.save_ping()
         resp.content = api.template(
             'ping_response_tcp_conn.html',
             request=tcp_endpoint,
