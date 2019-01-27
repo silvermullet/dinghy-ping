@@ -51,9 +51,13 @@ class DinghyData:
         try:
             for key in r.scan_iter("url:*"):
                 value = json.loads(r.execute_command('JSON.GET', key))
-                results[key.decode('utf-8').strip('url:')] = (
-                    f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms'
-                )
+                if value["response_code"] and value["response_time_ms"]:
+                    results[key.decode('utf-8').strip('url:')] = (
+                        f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms'
+                    )
+                else:
+                    results[key.decode('utf-8').strip('url:')] = ''
+
         except redis.exceptions.ConnectionError as err:
             print(f'Connection Error to Redis: {err}')
         except redis.exceptions.ResponseError as err:
