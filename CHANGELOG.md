@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.15 (2019-01-26)
+
+- [Zane Williamson] - Save tcp tests to history, Travis test with Python 3.7 
+
 ## v0.0.14 (2019-01-14)
 
 - [Zane Williamson] - Adding TCP check feature
