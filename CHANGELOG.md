@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.0.17 (2019-05-01)
+
+- [Zane Williamson] - Moving history to upper right, adding slivermullet logo 
+
 ## v0.0.16 (2019-05-01)
 
 - [Zane Williamson] - Security and dependency updates 
