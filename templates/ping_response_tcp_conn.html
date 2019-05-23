@@ -2,16 +2,16 @@
 <html>
   <head lang="en">
     <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
     <title>Dinghy Ping</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- styles -->
   </head>
   <body>
     <br>
-    <div class="max-w-sm rounded overflow-hidden shadow-md border border-green bg-grey-lightest">
+    <div class="m-4 max-w-xl rounded overflow-hidden shadow-md border border-green-300 bg-gray-100">
       <div class="px-6 py-4">
-        <h1><a href="/" class="no-underline hover:underline">Dinghy Ping</a></h1>
+        <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - tcp</a></h1>
         <br>
         <div class="font-bold text-base mb-2">Endpoint Domain: {{ request }}</div>
         <div class="font-bold text-base mb-2">Endpoint Port: {{ port }}</div>
@@ -19,10 +19,10 @@
       </div>
     </div>
     <br>
-    <div class="max-w-lg rounded overflow-hidden shadow-lg border border-green bg-grey-lightest">
+    <div class="m-4 max-w-xl rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
       <div class="px-6 py-4">
         <div class="font-bold text-base mb-2">Response Body:</div>
-         <p class="text-grey-darkest text-sm"> {{ connection_results }} </p>
+         <p class="text-gray-700 text-sm"> {{ connection_results }} </p>
       </div>
     </div>
   </body>
