@@ -6,6 +6,8 @@ import asyncio
 import os
 import json
 import data
+import dinghy_dns
+import dns.rdatatype
 import socket
 import logging
 from urllib.parse import urlparse
@@ -15,7 +17,12 @@ COMPLETED_REQUEST_COUNTER = Counter('dingy_pings_completed', 'Count of completed
 FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy ping requests')
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
 
+def to_pretty_json(value):
+    return json.dumps(value, sort_keys=True,
+                      indent=4, separators=(',', ': '))
+
 api = responder.API(title="Dinghy Ping", version="1.0", openapi="3.0.0", docs_route="/docs")
+api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
 # For local mac docker image creation and testing, switch to host.docker.internal
 redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
@@ -72,11 +79,12 @@ async def ping_multiple_domains(req, resp):
     results = []
 
     def build_domain_results(protocol, request_domain, results, headers):
-        domain_response_code, domain_response_text, domain_response_time_ms = _process_request(protocol, request_domain, req.params, headers)
+        domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers = _process_request(protocol, request_domain, req.params, headers)
         results.append({
             "protocol": protocol,
             "domain": request_domain,
             "domain_response_code": domain_response_code,
+            "domain_response_headers": domain_response_headers,
             "domain_response_time_ms": domain_response_time_ms
         })
 
@@ -98,7 +106,7 @@ def domain_response_html(req, resp, *, protocol, domain):
     """
 
     headers = {}
-    domain_response_code, domain_response_text, domain_response_time_ms = (
+    domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers = (
         _process_request(protocol, domain, req.params, headers)
     )
 
@@ -107,6 +115,7 @@ def domain_response_html(req, resp, *, protocol, domain):
             domain=domain,
             domain_response_code=domain_response_code,
             domain_response_text=domain_response_text,
+            domain_response_headers=domain_response_headers,
             domain_response_time_ms=domain_response_time_ms
     )
 
@@ -124,7 +133,7 @@ def form_input(req, resp):
     else:
         scheme_notes = f'Scheme {url.scheme} provided'
 
-    domain_response_code, domain_response_text, domain_response_time_ms = (
+    domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers = (
         _process_request(url.scheme, url.netloc + url.path, url.query, headers)
     )
 
@@ -134,6 +143,7 @@ def form_input(req, resp):
             scheme_notes=scheme_notes,
             domain_response_code=domain_response_code,
             domain_response_text=domain_response_text,
+            domain_response_headers=domain_response_headers,
             domain_response_time_ms=domain_response_time_ms
     )
 
@@ -171,6 +181,44 @@ async def form_input_tcp_connection_test(req, resp):
             connection_results = connection_info
         )
 
+
+@api.route("/dinghy/form-input-dns-info")
+async def form_input_dns_info(req, resp):
+    domain = req.params['domain']
+    
+    if 'nameserver' in req.params.keys():
+        nameserver = req.params['nameserver']
+    else:
+        nameserver = '127.0.0.1'
+    
+    dns_info_A=_gather_dns_A_info(domain, nameserver)
+    dns_info_NS=_gather_dns_NS_info(domain, nameserver)
+    dns_info_MX=_gather_dns_MX_info(domain, nameserver)
+
+    resp.content = api.template(
+            'dns_info.html',
+            domain = domain,
+            dns_info_A=dns_info_A,
+            dns_info_NS=dns_info_NS,
+            dns_info_MX=dns_info_MX
+    )
+
+
+def _gather_dns_A_info(domain, nameserver):
+    dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
+    return dns_info_A.dns_query()
+
+
+def _gather_dns_NS_info(domain, nameserver):
+    dns_info_NS = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.NS, nameserver=nameserver)
+    return dns_info_NS.dns_query()
+
+
+def _gather_dns_MX_info(domain, nameserver):
+    dns_info_MX = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.MX, nameserver=nameserver)
+    return dns_info_MX.dns_query()
+
+
 @REQUEST_TIME.time()
 def _process_request(protocol, domain, params, headers):
     """
@@ -183,6 +231,7 @@ def _process_request(protocol, domain, params, headers):
     domain_response_code = ""
     domain_response_text = ""
     domain_response_time_ms = ""
+    domain_response_headers = {}
 
     try:
         r = requests.get(f'{protocol}://{domain}', params=params, timeout=5, headers=headers)
@@ -190,24 +239,26 @@ def _process_request(protocol, domain, params, headers):
     except requests.exceptions.Timeout as err:
         domain_response_text = f'Timeout: {err}'
         FAILED_REQUEST_COUNTER.inc()
-        return domain_response_code, domain_response_text, domain_response_time_ms
+        return domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers
     except requests.exceptions.TooManyRedirects as err:
         domain_response_text = f'TooManyRedirects: {err}'
         FAILED_REQUEST_COUNTER.inc()
-        return domain_response_code, domain_response_text, domain_response_time_ms
+        return domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers
     except requests.exceptions.RequestException as err:
         domain_response_text = f'RequestException: {err}'
         FAILED_REQUEST_COUNTER.inc()
-        return domain_response_code, domain_response_text, domain_response_time_ms
+        return domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers
 
     domain_response_code = r.status_code
     domain_response_text = r.text
+    domain_response_headers = dict(r.headers)
     domain_response_time_ms = r.elapsed.microseconds / 1000
+    print(domain_response_headers)
 
     d = data.DinghyData(redis_host, domain_response_code, domain_response_time_ms, r.url)
     d.save_ping()
 
-    return domain_response_code, domain_response_text, domain_response_time_ms
+    return domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers
 
 def _get_all_pinged_urls():
     """Get pinged URLs from Dinghy-ping data module"""
