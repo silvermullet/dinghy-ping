@@ -189,7 +189,7 @@ async def form_input_dns_info(req, resp):
     if 'nameserver' in req.params.keys():
         nameserver = req.params['nameserver']
     else:
-        nameserver = '127.0.0.1'
+        nameserver = None 
     
     dns_info_A=_gather_dns_A_info(domain, nameserver)
     dns_info_NS=_gather_dns_NS_info(domain, nameserver)
