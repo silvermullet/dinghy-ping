@@ -4,6 +4,11 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.1.1 (2019-06-25)
+
+- [Zane] - Adding DNS lookup interface
+- [Sandosh] - Display response headers and syntax highlight response
+
 ## v0.1.0 (2019-05-22)
 
 - [Zane Williamson] - Upgrade to Tailwind CSS v1.0 and lock in version
