@@ -6,6 +6,8 @@ import asyncio
 import os
 import json
 import data
+import dinghy_dns
+import dns.rdatatype
 import socket
 import logging
 from urllib.parse import urlparse
@@ -178,6 +180,44 @@ async def form_input_tcp_connection_test(req, resp):
             port=tcp_port,
             connection_results = connection_info
         )
+
+
+@api.route("/dinghy/form-input-dns-info")
+async def form_input_dns_info(req, resp):
+    domain = req.params['domain']
+    
+    if 'nameserver' in req.params.keys():
+        nameserver = req.params['nameserver']
+    else:
+        nameserver = '127.0.0.1'
+    
+    dns_info_A=_gather_dns_A_info(domain, nameserver)
+    dns_info_NS=_gather_dns_NS_info(domain, nameserver)
+    dns_info_MX=_gather_dns_MX_info(domain, nameserver)
+
+    resp.content = api.template(
+            'dns_info.html',
+            domain = domain,
+            dns_info_A=dns_info_A,
+            dns_info_NS=dns_info_NS,
+            dns_info_MX=dns_info_MX
+    )
+
+
+def _gather_dns_A_info(domain, nameserver):
+    dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
+    return dns_info_A.dns_query()
+
+
+def _gather_dns_NS_info(domain, nameserver):
+    dns_info_NS = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.NS, nameserver=nameserver)
+    return dns_info_NS.dns_query()
+
+
+def _gather_dns_MX_info(domain, nameserver):
+    dns_info_MX = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.MX, nameserver=nameserver)
+    return dns_info_MX.dns_query()
+
 
 @REQUEST_TIME.time()
 def _process_request(protocol, domain, params, headers):
