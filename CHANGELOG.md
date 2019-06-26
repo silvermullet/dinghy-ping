@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.1.2 (2019-06-26)
+
+- [Zane] - Use default system resolver, and optional nameserver override
+
 ## v0.1.1 (2019-06-25)
 
 - [Zane] - Adding DNS lookup interface
