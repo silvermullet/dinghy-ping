@@ -11,7 +11,7 @@ metadata:
   name: {{ include "dinghy-ping.fullname" . }}-pod-reader
 rules:
 - apiGroups: [""]
-  resources: ["pods"]
+  resources: ["pods", "pods/log"]
   verbs: ["get", "watch", "list", "log"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -21,6 +21,7 @@ metadata:
 subjects:
 - kind: ServiceAccount
   name: {{ include "dinghy-ping.fullname" . }}
+  namespace: "default"
 roleRef:
   kind: ClusterRole
   name: {{ include "dinghy-ping.fullname" . }}-reader
