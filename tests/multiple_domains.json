@@ -2,7 +2,7 @@
     "domains": [
       {
         "protocol": "https",
-        "domain": "slack.com",
+        "domain": "github.com",
         "headers": {}
       },
       {
