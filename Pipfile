@@ -8,6 +8,7 @@ responder = "*"
 redis = "*"
 prometheus_client = "*"
 dnspython = "*"
+kubernetes = "*"
 
 [dev-packages]
 pylint = "*"
