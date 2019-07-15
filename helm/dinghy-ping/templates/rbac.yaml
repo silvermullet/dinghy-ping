@@ -1,0 +1,28 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}-pod-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "watch", "list", "log"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}-pod-reader
+subjects:
+- kind: ServiceAccount
+  name: {{ include "dinghy-ping.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "dinghy-ping.fullname" . }}-reader
+  apiGroup: rbac.authorization.k8s.io

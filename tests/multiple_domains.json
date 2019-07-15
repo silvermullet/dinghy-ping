@@ -2,7 +2,7 @@
     "domains": [
       {
         "protocol": "https",
-        "domain": "google.com",
+        "domain": "github.com",
         "headers": {}
       },
       {
@@ -12,7 +12,7 @@
       },
       {
         "protocol": "https",
-        "domain": "microsoft.com",
+        "domain": "www.trulia.com",
         "headers": {}
       }
     ]
