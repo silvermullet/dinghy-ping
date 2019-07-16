@@ -19,9 +19,7 @@ FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy p
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
 
 # Configure kubernetes client
-if "IN_TRAVIS" in os.environ:
-    pass
-else:
+if not "IN_TRAVIS" in os.environ:
     config.load_incluster_config()
     k8s_client = client.CoreV1Api()
 
@@ -219,7 +217,11 @@ def list_pods_html(req, resp):
     )
 
 def _get_all_pods():
-    return k8s_client.list_pod_for_all_namespaces(watch=False)
+    pods = []
+    ret = k8s_client.list_pod_for_all_namespaces(watch=False)
+    for i in ret.items:
+        pods.append(i.metadata.name)
+    return pods
 
 def _gather_dns_A_info(domain, nameserver):
     dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
