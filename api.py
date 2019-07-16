@@ -232,28 +232,16 @@ def stream_logs_html(req, resp):
         log_stream=_get_log_stream()
     )
 
-def _get_log_stream():
-
-# Not sure where this block should go, and what items we actually need
-    # Do I need this line or is equivalent to 'k8s_client.read_namespaced_pod_log'?
-    api_instance = kubernetes.client.CoreV1Api(kubernetes.client.ApiClient(configuration))
-    name = 'name_example' # str | name of the Pod
-    namespace = 'namespace_example' # str | object name and auth scope, such as for teams and projects
-    container = 'container_example' # str | The container for which to stream logs. Defaults to only container if there is one container in the pod. (optional)
-    follow = true # bool | Follow the log stream of the pod. Defaults to false. (optional)
-    limit_bytes = 56 # int | If set, the number of bytes to read from the server before terminating the log output. This may not display a complete final line of logging, and may return slightly more or slightly less than the specified limit. (optional)
-    pretty = 'pretty_example' # str | If 'true', then the output is pretty printed. (optional)
-    previous = true # bool | Return previous terminated container logs. Defaults to false. (optional)
-    since_seconds = 56 # int | A relative time in seconds before the current time from which to show logs. If this value precedes the time a pod was started, only logs since the pod start will be returned. If this value is in the future, no logs will be returned. Only one of sinceSeconds or sinceTime may be specified. (optional)
-    tail_lines = 56 # int | If set, the number of lines from the end of the logs to show. If not specified, logs are shown from the creation of the container or sinceSeconds or sinceTime (optional)
-    timestamps = true # bool | If true, add an RFC3339 or RFC3339Nano timestamp at the beginning of every line of log output. Defaults to false. (optional)
-
-    logs = []
-    ret = k8s_client.read_namespaced_pod_log(name, namespace, container=container, follow=follow, limit_bytes=limit_bytes, pretty=pretty, previous=previous, since_seconds=since_seconds, tail_lines=tail_lines, timestamps=timestamps)
-    # do I need this for loop ??
-    for i in ret.items:
-        # what should I append here, if anything
-        logs.append(i.name)
+def _get_log_stream()
+    # do these variables need to move into the block above?
+    name = 'kube-proxy-mlxhk' # Hard coding to a local pod -- This needs to be templated
+    namespace = 'kube-system' # Will need to be templated
+    follow = true 
+    tail_lines = 50 
+    timestamps = true 
+    
+    # I'm not sure if this is correct
+    logs = k8s_client.read_namespaced_pod_log(name, namespace, follow=follow, tail_lines=tail_lines, timestamps=timestamps)
     return logs
 
 def _gather_dns_A_info(domain, nameserver):
