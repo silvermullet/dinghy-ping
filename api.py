@@ -19,7 +19,7 @@ FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy p
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
 
 # Configure kubernetes client
-config.load_kube_config()
+config.load_incluster_config()
 k8s_client = client.CoreV1Api()
 
 def to_pretty_json(value):
