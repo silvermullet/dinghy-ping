@@ -11,11 +11,17 @@ import dns.rdatatype
 import socket
 import logging
 from urllib.parse import urlparse
+from kubernetes import client, config
 
 # Prometheus metrics
 COMPLETED_REQUEST_COUNTER = Counter('dingy_pings_completed', 'Count of completed dinghy ping requests')
 FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy ping requests')
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
+
+# Configure kubernetes client
+if not "IN_TRAVIS" in os.environ:
+    config.load_incluster_config()
+    k8s_client = client.CoreV1Api()
 
 def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
@@ -35,7 +41,6 @@ def dinghy_html(req, resp):
         'ping_input.html',
         get_all_pinged_urls=_get_all_pinged_urls()
     )
-
 
 @api.route("/dinghy/ping/domains")
 async def ping_multiple_domains(req, resp):
@@ -203,6 +208,20 @@ async def form_input_dns_info(req, resp):
             dns_info_MX=dns_info_MX
     )
 
+@api.route("/list_pods")
+def list_pods_html(req, resp):
+    """Route to list pods"""
+    resp.content = api.template(
+        'list_pods.html',
+        all_pods=_get_all_pods()
+    )
+
+def _get_all_pods():
+    pods = []
+    ret = k8s_client.list_pod_for_all_namespaces(watch=False)
+    for i in ret.items:
+        pods.append(i.metadata.name)
+    return pods
 
 def _gather_dns_A_info(domain, nameserver):
     dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
