@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="UTF-8">
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-json.min.js" integrity="sha256-18m89UBQcWGjPHHo64UD+sQx4SpMxiRI1F0MbefKXWw=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/themes/prism-tomorrow.min.css" integrity="sha256-xevuwyBEb2ZYh4nDhj0g3Z/rDBnM569hg9Vq6gEw/Sg=" crossorigin="anonymous" />
+    <title>Dinghy Ping</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      code[class*=language-] {
+        white-space: pre-wrap;
+        font-size: 0.85em;
+      }
+    </style>
+  </head>
+  <body>
+    <br>
+    <div class="m-4 max-w-full rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
+      <div class="px-6 py-4">
+        <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - Pods</a></h1>
+        <br>
+            {% for pod, namespace in all_pods.items() %}
+              <a href="/dinghy/input-pod-logs?namespace={{namespace}}&pod={{pod}}">{{namespace}} - {{pod}}</a>
+              <br>
+            {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>
