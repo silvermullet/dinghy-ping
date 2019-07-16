@@ -20,7 +20,7 @@ jobs:
           - pipenv install --dev
       before_script:
           - ./redis/src/redis-server --loadmodule ReJSON/src/rejson.so &
-      script: pytest tests/ --disable-pytest-warnings 
+      script: IN_TRAVIS=true pytest tests/ --disable-pytest-warnings 
     - stage: build docker image
       script:
       - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
