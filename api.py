@@ -277,11 +277,12 @@ def _get_all_pods(namespace=None):
     return pods
 
 # web sockets boilerplate
-@api.route('/ws/{namespace}/{pod_name}', websocket=True)
+@api.route('/ws/{namespace}/{name}', websocket=True)
 async def websocket(ws):
     await ws.accept()
     while True:
-        name = await ws.receive_text()
+        thing = await ws.receive_text()
+        print(thing)
         logs = _get_log_stream(name, namespace)
         print('testing logs2')    
         await ws.send_text(logs)
