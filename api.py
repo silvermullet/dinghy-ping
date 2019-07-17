@@ -286,16 +286,17 @@ def stream_logs_html(req, resp):
     )
 
 def _get_log_stream():
-    # do these variables need to move into the block above?
-    name = 'kube-proxy-mlxhk' # Hard coding to a local pod -- This needs to be templated
-    namespace = 'kube-system' # Will need to be templated
+    """Read log Stream"""
     follow = true 
     tail_lines = 50 
-    timestamps = true 
-    
-    # I'm not sure if this is correct
-    logs = k8s_client.read_namespaced_pod_log(name, namespace, follow=follow, tail_lines=tail_lines, timestamps=timestamps)
-    return logs
+    timestamps = true
+    try:
+        ret = k8s_client.read_namespaced_pod_log(name, namespace, follow=follow, tail_lines=tail_lines, timestamps=timestamps)
+    except ApiException as e:
+        logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+
+    return ret
+
 
 def _gather_dns_A_info(domain, nameserver):
     dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
