@@ -281,17 +281,20 @@ def _get_all_pods(namespace=None):
 async def websocket(ws):
     await ws.accept()
     while True:
+        name = await ws.receive_text()
         logs = _get_log_stream(name, namespace)
+        print('testing logs2')    
         await ws.send_text(logs)
     await ws.close()
 
-def _get_log_stream(name, namespace):
+async def _get_log_stream(name, namespace):
     """Read log Stream"""
     follow = true 
     tail_lines = 50 
     timestamps = true
     try:
         ret = k8s_client.read_namespaced_pod_log(name, namespace, follow=follow, tail_lines=tail_lines, timestamps=timestamps)
+        print('testing logs')    
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
 
