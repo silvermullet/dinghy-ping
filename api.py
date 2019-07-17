@@ -282,7 +282,7 @@ def stream_logs_html(req, resp):
     """Route to stream logs"""
     resp.content = api.template(
         'stream_logs.html',
-        log_stream=_get_log_stream()
+        log_stream=_get_log_stream(name, namespace)
     )
 
 def _get_log_stream()
