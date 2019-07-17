@@ -12,6 +12,7 @@ import socket
 import logging
 from urllib.parse import urlparse
 from kubernetes import client, config
+from kubernetes.client.rest import ApiException
 
 # Prometheus metrics
 COMPLETED_REQUEST_COUNTER = Counter('dingy_pings_completed', 'Count of completed dinghy ping requests')
@@ -208,19 +209,71 @@ async def form_input_dns_info(req, resp):
             dns_info_MX=dns_info_MX
     )
 
-@api.route("/list_pods")
-def list_pods_html(req, resp):
+
+@api.route("/dinghy/list-pods")
+def list_pods(req, resp):
     """Route to list pods"""
+    namespace = req.params['namespace']
+    return _get_all_pods(namespace)
+
+
+@api.route("/dinghy/pod-logs")
+def dinghy_pod_logs(req, resp):
+    """Landing page for Dinghy-ping pod logs input html form"""
+    if 'namespace' in req.params.keys():
+        namespace = req.params['namespace']
+    else:
+        namespace = "default" 
+
     resp.content = api.template(
-        'list_pods.html',
-        all_pods=_get_all_pods()
+        'pod_logs_input.html',
+        all_pods=_get_all_pods(namespace=namespace),
     )
 
-def _get_all_pods():
-    pods = []
-    ret = k8s_client.list_pod_for_all_namespaces(watch=False)
+
+@api.route("/dinghy/input-pod-logs")
+def form_input_pod_logs(req, resp):
+    """List pods in namespace and click on one to display logs"""
+    pod = req.params['pod']
+    namespace = req.params['namespace']
+
+    logs = _get_pod_logs(pod, namespace)
+
+    resp.content = api.template(
+        'pod_logs_output.html',
+        logs=logs
+    )
+    
+
+def _get_pod_logs(pod, namespace):
+    """Read pod logs"""
+    try:
+        ret = k8s_client.read_namespaced_pod_log(pod, namespace)
+    except ApiException as e:
+        logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+
+    return ret
+    
+def _get_all_namespaces():
+    namespaces = []
+    ret = k8s_client.list_namespace(watch=False)
     for i in ret.items:
-        pods.append(i.metadata.name)
+        namespaces.append(i.metadata.name)
+
+    return namespaces
+
+def _get_all_pods(namespace=None):
+    pods = {}
+    if namespace:
+        ret = k8s_client.list_namespaced_pod(namespace, watch=False)
+    else:
+        ret = k8s_client.list_pod_for_all_namespaces(watch=False)
+
+    for i in ret.items:
+        pod = i.metadata.name
+        namespace = i.metadata.namespace
+        pods.update({ pod: i.metadata.namespace} )
+
     return pods
 
 # work in progress for log stream endpoint
