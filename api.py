@@ -278,7 +278,7 @@ def _get_all_pods(namespace=None):
 
 # web sockets boilerplate
 @api.route('/ws/{namespace}/{name}', websocket=True)
-async def websocket(ws):
+async def websocket(ws, namespace, name):
     await ws.accept()
     while True:
         thing = await ws.receive_text()
