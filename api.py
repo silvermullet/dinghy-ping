@@ -285,7 +285,7 @@ def stream_logs_html(req, resp):
         log_stream=_get_log_stream(name, namespace)
     )
 
-def _get_log_stream()
+def _get_log_stream():
     # do these variables need to move into the block above?
     name = 'kube-proxy-mlxhk' # Hard coding to a local pod -- This needs to be templated
     namespace = 'kube-system' # Will need to be templated
