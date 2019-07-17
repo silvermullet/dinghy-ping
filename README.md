@@ -10,30 +10,6 @@ Dinghy Ping is a simple network debugging interface meant to be deployed into yo
 <img width="822" alt="dinghy ping results" src="https://user-images.githubusercontent.com/538171/48463557-4d6c0880-e791-11e8-9c31-4555c6282a21.png">
 
 
-#### Requirements
-
-```pipenv install```
-
-#### Localhost
-
-```python3 api.py```
-
-#### Local Docker Build and Run
-
-```bash
-# start local redis instance, with rejson module support
-docker run -p 6379:6379 -d redislabs/rejson:latest
-
-# build and start dinghy-ping from local code
-docker build . --tag dinghy:latest
-
-# on MacOS 
-docker run -p 80:80 -p 8000:8000 -e "REDIS_HOST=host.docker.internal" dinghy:latest
-
-# non-MacOS
-docker run -p 80:80 -p 8000:8000 dinghy:latest
-```
-
 #### Dinghy ping single endpoint
 
 ```bash
@@ -55,15 +31,12 @@ curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
   --header "Content-Type: application/json"
 ```
 
-#### Helm Install
-
-```
-helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.0.9 --set ingress.subdomain="yourhostname.net"
-```
-
 #### Local development on Mac with Docker controlled K8s
 
 ##### Install Docker for MacOS and enable Kubernetes
+
+* requires Docker for Mac 2.x or greater
+* Enable Kubernetes on Docker for Mac under preferences
 
 ```
 # Install ingress-nginx
