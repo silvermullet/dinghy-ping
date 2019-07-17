@@ -276,16 +276,16 @@ def _get_all_pods(namespace=None):
 
     return pods
 
-# work in progress for log stream endpoint
-@api.route("/stream_logs")
-def stream_logs_html(req, resp):
-    """Route to stream logs"""
-    resp.content = api.template(
-        'stream_logs.html',
-        log_stream=_get_log_stream(name, namespace)
-    )
+# web sockets boilerplate
+@api.route('/ws/{namespace}/{pod_name}', websocket=True)
+async def websocket(ws):
+    await ws.accept()
+    while True:
+        logs = _get_log_stream(name, namespace)
+        await ws.send_text(logs)
+    await ws.close()
 
-def _get_log_stream():
+def _get_log_stream(name, namespace):
     """Read log Stream"""
     follow = true 
     tail_lines = 50 
