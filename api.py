@@ -244,6 +244,32 @@ def form_input_pod_logs(req, resp):
         logs=logs
     )
     
+@api.route("/dinghy/deployment-logs/{namespace}/{name}")
+def dinghy_deployment_logs(req, resp):
+    # TODO: infer namespace from name. Split by "pr" or "master"? Maybe too ZG specific
+    _get_deployment_logs(namespace, name)
+    resp.content = api.template(
+        'pod_logs_output.html',
+        logs=logs
+    )
+
+def _get_deployment_logs(namespace, name):
+    # Gather pod names from label selector
+    try:
+        # TODO: Take API response and create list of pod names
+        api_response = api_instance.list_namespaced_pod(namespace, label_selector=name)
+        print(api_response) # Remove, debug
+    except ApiException as e:
+        print("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
+
+    # Iterate over list of pods and concatenate logs
+    logs = ""
+    try:
+        for pod in pods:
+            logs += k8s_client.read_namespaced_pod_log(pod, namespace)
+    except ApiException as e:
+        logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
+    return logs
 
 def _get_pod_logs(pod, namespace):
     """Read pod logs"""
