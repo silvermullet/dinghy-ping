@@ -281,7 +281,7 @@ def _get_all_pods(namespace=None):
 async def websocket(ws):
     await ws.accept()
     # is this the type of parsing we need to do?
-    url = urlparse(req.params['name', 'namespace'])
+    url = urlparse(ws.params['name', 'namespace'])
     while True:
         thing = await ws.receive_text()
         print(thing)
