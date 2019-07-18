@@ -257,7 +257,6 @@ def _get_deployment_logs(namespace, name):
     # Gather pod names from label selector
     pods = []
     try:
-        # TODO: Take API response and create list of pod names
         api_response = k8s_client.list_namespaced_pod(namespace, label_selector='release={}'.format(name))
         for api_items in api_response.items:
             pods.append(api_items.metadata.name)
@@ -268,6 +267,7 @@ def _get_deployment_logs(namespace, name):
     logs = ""
     try:
         for pod in pods:
+            logs += pod
             logs += k8s_client.read_namespaced_pod_log(pod, namespace)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
