@@ -43,7 +43,7 @@ def dinghy_html(req, resp):
         get_all_pinged_urls=_get_all_pinged_urls()
     )
 
-@api.route("/dinghy/ping/domains")
+@api.route("/ping/domains")
 async def ping_multiple_domains(req, resp):
     """
     Async process to test multiple domains and return JSON with results
@@ -104,7 +104,7 @@ async def ping_multiple_domains(req, resp):
     resp.media = {"domains_response_results": results, "wait": gather_results(await req.media())}
 
 
-@api.route("/dinghy/ping/{protocol}/{domain}")
+@api.route("/ping/{protocol}/{domain}")
 def domain_response_html(req, resp, *, protocol, domain):
     """
     API endpoint for sending a request to a domain via user specified protocol
@@ -126,7 +126,7 @@ def domain_response_html(req, resp, *, protocol, domain):
     )
 
 
-@api.route("/dinghy/form-input")
+@api.route("/form-input")
 def form_input(req, resp):
     """Dinghy-ping html input form for http connection"""
     url = urlparse(req.params['url'])
@@ -154,7 +154,7 @@ def form_input(req, resp):
     )
 
 
-@api.route("/dinghy/form-input-tcp-connection-test")
+@api.route("/form-input-tcp-connection-test")
 async def form_input_tcp_connection_test(req, resp):
     logging.basicConfig(level=logging.DEBUG)
     tcp_endpoint = req.params['tcp-endpoint']
@@ -188,7 +188,7 @@ async def form_input_tcp_connection_test(req, resp):
         )
 
 
-@api.route("/dinghy/form-input-dns-info")
+@api.route("/form-input-dns-info")
 async def form_input_dns_info(req, resp):
     domain = req.params['domain']
     
@@ -210,21 +210,21 @@ async def form_input_dns_info(req, resp):
     )
 
 
-@api.route("/dinghy/list-pods")
+@api.route("/list-pods")
 def list_pods(req, resp):
     """Route to list pods"""
     namespace = req.params['namespace']
     return _get_all_pods(namespace)
 
 
-@api.route("/dinghy/get/pod-logs")
+@api.route("/get/pod-logs")
 def dinghy_get_pod_logs(req, resp):
     resp.content = api.template(
         'dinghy_pod_logs.html'
     )
 
 
-@api.route("/dinghy/post/pod-logs")
+@api.route("/post/pod-logs")
 def dinghy_post_pod_logs(req, resp):
     """Landing page for Dinghy-ping pod logs input html form"""
     if 'namespace' in req.params.keys():
@@ -238,7 +238,7 @@ def dinghy_post_pod_logs(req, resp):
     )
 
 
-@api.route("/dinghy/input-pod-logs")
+@api.route("/input-pod-logs")
 def form_input_pod_logs(req, resp):
     """List pods in namespace and click on one to display logs"""
     pod = req.params['pod']
@@ -251,7 +251,7 @@ def form_input_pod_logs(req, resp):
         logs=logs
     )
     
-@api.route("/dinghy/deployment-logs/{namespace}/{name}")
+@api.route("/deployment-logs/{namespace}/{name}")
 def dinghy_deployment_logs(req, resp, *, namespace, name):
     # TODO: infer namespace from name. Split by "pr" or "master"? Maybe too ZG specific
     logs = _get_deployment_logs(namespace, name)
