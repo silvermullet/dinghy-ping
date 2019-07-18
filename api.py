@@ -267,7 +267,7 @@ def _get_deployment_logs(namespace, name):
     logs = ""
     try:
         for pod in pods:
-            logs += pod
+            logs += pod + "\n"
             logs += k8s_client.read_namespaced_pod_log(pod, namespace)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
