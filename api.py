@@ -276,10 +276,12 @@ def _get_all_pods(namespace=None):
 
     return pods
 
-# web sockets boilerplate
-@api.route('/ws/{namespace}/{name}', websocket=True)
-async def websocket(ws, *, namespace, name):
+# web sockets test
+@api.route('/ws', websocket=True)
+async def websocket(ws):
     await ws.accept()
+    # is this the type of parsing we need to do?
+    url = urlparse(req.params['name', 'namespace'])
     while True:
         thing = await ws.receive_text()
         print(thing)
@@ -287,6 +289,7 @@ async def websocket(ws, *, namespace, name):
         print('testing logs2')    
         await ws.send_text(logs)
     await ws.close()
+
 
 async def _get_log_stream(name, namespace):
     """Read log Stream"""
