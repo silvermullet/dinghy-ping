@@ -21,22 +21,22 @@ def session(api):
 
 
 def test_dinghy_ping_google_http(api):
-    r = api.requests.get("/dinghy/ping/http/google.com")
+    r = api.requests.get("/ping/http/google.com")
     assert r.status_code == 200
 
 
 def test_dinghy_ping_google_http(api):
-    r = api.requests.get("/dinghy/form-input-tcp-connection-test?tcp-endpoint=google.com&tcp-port=443")
+    r = api.requests.get("/form-input-tcp-connection-test?tcp-endpoint=google.com&tcp-port=443")
     assert r.status_code == 200
 
 
 def test_dinghy_ping_google_https_and_query_params(api):
-    r = api.requests.get("/dinghy/ping/https/www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
+    r = api.requests.get("/ping/https/www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
     assert r.status_code == 200
 
 
 def test_dinghy_ping_google_no_proto_set_and_query_params(api):
-    r = api.requests.get("/dinghy/ping//www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
+    r = api.requests.get("/ping//www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
     assert r.status_code == 200
 
 """
@@ -59,6 +59,6 @@ def test_multiple_domains_request_for_microsoft(api):
 """
 
 def test_ping_saved_results(api):
-    api.requests.get("/dinghy/ping/http/www.google.com")
+    api.requests.get("/ping/http/www.google.com")
     p = service._get_all_pinged_urls()
     assert "http://www.google.com/" in p 
