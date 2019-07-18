@@ -257,7 +257,7 @@ def _get_deployment_logs(namespace, name):
     # Gather pod names from label selector
     try:
         # TODO: Take API response and create list of pod names
-        api_response = api_instance.list_namespaced_pod(namespace, label_selector=name)
+        api_response = api_instance.list_namespaced_pod(namespace, label_selector='release={}'.format(name))
         print(api_response) # Remove, debug
     except ApiException as e:
         print("Exception when calling CoreV1Api->list_namespaced_pod: %s\n" % e)
