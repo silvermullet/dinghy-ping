@@ -1,42 +1,41 @@
-<!DOCTYPE html>
-<html>
-  <head lang="en">
-    <meta charset="UTF-8">
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-json.min.js" integrity="sha256-18m89UBQcWGjPHHo64UD+sQx4SpMxiRI1F0MbefKXWw=" crossorigin="anonymous"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/themes/prism-tomorrow.min.css" integrity="sha256-xevuwyBEb2ZYh4nDhj0g3Z/rDBnM569hg9Vq6gEw/Sg=" crossorigin="anonymous" />
-    <title>Dinghy Ping</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-      code[class*=language-] {
-        white-space: pre-wrap;
-        font-size: 0.85em;
-      }
-    </style>
-  </head>
-  <body>
+{% extends "base.html" %}
+{% block title %}Dinghy Ping{% endblock %}
+{% block head %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-json.min.js" integrity="sha256-18m89UBQcWGjPHHo64UD+sQx4SpMxiRI1F0MbefKXWw=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/themes/prism-tomorrow.min.css" integrity="sha256-xevuwyBEb2ZYh4nDhj0g3Z/rDBnM569hg9Vq6gEw/Sg=" crossorigin="anonymous" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  code[class*=language-] {
+    white-space: pre-wrap;
+    font-size: 0.85em;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="m-4 max-w-xl rounded overflow-hidden shadow-md border border-green-300 bg-gray-100">
+  <div class="px-6 py-4">
+    <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - http</a></h1>
     <br>
-    <div class="m-4 max-w-xl rounded overflow-hidden shadow-md border border-green-300 bg-gray-100">
-      <div class="px-6 py-4">
-        <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - http</a></h1>
-        <br>
-        <div class="font-bold text-base mb-2">Request: {{ request }}</div>
-        <div class="font-bold text-base mb-2">Response Code: {{ domain_response_code }}</div>
-        <div class="font-bold text-base mb-2">Response Time: {{ domain_response_time_ms }}</div>
-        <div class="text-xs mb-2">Scheme Notes: {{ scheme_notes }}</div>
-      </div>
-    </div>
-    <br>
-    <div class="m-4 max-w-full rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
-      <div class="px-6 py-4">
-          <div class="font-bold text-base mb-2">Response Headers:</div>
-          <pre><code class="language-json font-serif text-gray-700 text-sm"> {{ domain_response_headers|tojson_pretty }} </code></pre>
-      </div>
-      <div class="px-6 py-4">
-        <div class="font-bold text-base mb-2">Response Body:</div>
-         <pre><code class="language-{{ domain_response_headers["Content-Type"] | replace("application/", "") | replace("text/", "") }} font-serif text-gray-700 text-sm"> {{ domain_response_text }} </code></pre>
-      </div>
-    </div>
-  </body>
-</html>
+    <div class="font-bold text-base mb-2">Request: {{ request }}</div>
+    <div class="font-bold text-base mb-2">Response Code: {{ domain_response_code }}</div>
+    <div class="font-bold text-base mb-2">Response Time: {{ domain_response_time_ms }}</div>
+    <div class="text-xs mb-2">Scheme Notes: {{ scheme_notes }}</div>
+  </div>
+</div>
+<br>
+<div class="m-4 max-w-full rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
+  <div class="px-6 py-4">
+      <div class="font-bold text-base mb-2">Response Headers:</div>
+      <pre><code class="language-json font-serif text-gray-700 text-sm"> {{ domain_response_headers|tojson_pretty }} </code></pre>
+  </div>
+  <div class="px-6 py-4">
+    <div class="font-bold text-base mb-2">Response Body:</div>
+      <pre><code class="language-{{ domain_response_headers["Content-Type"] | replace("application/", "") | replace("text/", "") }} font-serif text-gray-700 text-sm"> {{ domain_response_text }} </code></pre>
+  </div>
+</div>
+{% endblock %}
