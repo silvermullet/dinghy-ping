@@ -254,9 +254,13 @@ def form_input_pod_logs(req, resp):
 @api.route("/deployment-logs/{namespace}/{name}")
 def dinghy_deployment_logs(req, resp, *, namespace, name):
     logs = _get_deployment_logs(namespace, name)
+    logs_preview = logs[0:1000]
 
     if 'json' in req.params.keys():
-        resp.media = {"logs": logs}
+        if 'preview' in req.params.keys():
+            resp.media = {"logs": logs_preview}
+        else:
+            resp.media = {"logs": logs}
     else:
         resp.content = api.template(
             'pod_logs_output.html',
