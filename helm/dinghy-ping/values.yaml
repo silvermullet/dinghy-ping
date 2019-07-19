@@ -1,4 +1,5 @@
 replicaCount: 1 
+nameOverride: dinghy-ping-beta
 
 image:
   repository: sepulworld/dinghy-ping
