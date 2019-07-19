@@ -253,12 +253,15 @@ def form_input_pod_logs(req, resp):
     
 @api.route("/deployment-logs/{namespace}/{name}")
 def dinghy_deployment_logs(req, resp, *, namespace, name):
-    # TODO: infer namespace from name. Split by "pr" or "master"? Maybe too ZG specific
     logs = _get_deployment_logs(namespace, name)
-    resp.content = api.template(
-        'pod_logs_output.html',
-        logs=logs
-    )
+
+    if 'json' in req.params.keys():
+        resp.media = {"logs": logs}
+    else:
+        resp.content = api.template(
+            'pod_logs_output.html',
+             logs=logs
+        )
 
 def _get_deployment_logs(namespace, name):
     # Gather pod names from label selector
