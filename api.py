@@ -39,7 +39,7 @@ redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
 def dinghy_html(req, resp):
     """Index route to Dinghy-ping input html form"""
     resp.content = api.template(
-        'dinghy_index.html',
+        'index.html',
         get_all_pinged_urls=_get_all_pinged_urls()
     )
 
@@ -220,7 +220,7 @@ def list_pods(req, resp):
 @api.route("/get/pod-logs")
 def dinghy_get_pod_logs(req, resp):
     resp.content = api.template(
-        'dinghy_pod_logs.html'
+        'pod_logs.html'
     )
 
 
