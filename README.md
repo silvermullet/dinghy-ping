@@ -71,7 +71,7 @@ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/mast
 ```
 # Init helm if your local k8s doesn't have it yet
 helm init
-helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.1.2 --set ingress.subdomain="localhost"
+helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.2.0 --set ingress.subdomain="localhost"
 ```
 
 ##### Navigate to Dinghy-Ping in browser
