@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.2.0 (2019-07-24)
+
+- [Zane, Ian, Tatiana, Basam, Kristin] - New UI, pod logs, deployment logs
+
 ## v0.1.2 (2019-06-26)
 
 - [Zane] - Use default system resolver, and optional nameserver override
