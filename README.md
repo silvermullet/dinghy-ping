@@ -7,8 +7,15 @@
 Dinghy Ping is a simple network debugging interface meant to be deployed into your compute infrastructure (ie, Kubernetes). Used for debugging network connectivity to other services local to Dinghy Ping or external to the compute infrastructure (egress). Meant to answer simple connectivity questions developers might have when deploying their applications to a container orchestration setup where routing and accessibility may be different from their local development environments.
 
 <img width="906" alt="dinghy ping input" src="https://user-images.githubusercontent.com/538171/51016402-1c0b8100-1525-11e9-81f4-23bb3ef1f687.png">
-<img width="822" alt="dinghy ping results" src="https://user-images.githubusercontent.com/538171/48463557-4d6c0880-e791-11e8-9c31-4555c6282a21.png">
 
+#### Display for response headers
+<img width="948" alt="Screen Shot 2019-07-25 at 11 05 32 AM" src="https://user-images.githubusercontent.com/538171/61897586-3bb83480-aecc-11e9-9fcb-2c379e5f23bb.png">
+
+#### Formated display for response body
+<img width="1127" alt="Screen Shot 2019-07-25 at 11 07 28 AM" src="https://user-images.githubusercontent.com/538171/61897679-6e622d00-aecc-11e9-881f-0219f3832d1b.png">
+
+#### Pod logs, per namespace
+<img width="984" alt="Screen Shot 2019-07-25 at 11 01 50 AM" src="https://user-images.githubusercontent.com/538171/61897763-9ce00800-aecc-11e9-9312-1bddd4677203.png">
 
 #### Dinghy ping single endpoint
 
@@ -29,6 +36,17 @@ curl "http://127.0.0.1/dinghy/ping/https/www.google.com/search?source=hp&ei=aIHT
 curl -vX POST "http://127.0.0.1/dinghy/ping/domains" \
   -d @tests/multiple_domains.json \
   --header "Content-Type: application/json"
+```
+
+#### Deployment pod logs API
+```bash
+# 1000 line truncated response
+curl "https://127.0.0.1/deployment-logs/kube-addons/dinghy-ping?json=true?preview=true"
+```
+
+```bash
+# Full logs 
+curl "https://127.0.0.1/deployment-logs/kube-addons/dinghy-ping?json=true"
 ```
 
 #### Local development on Mac with Docker controlled K8s
