@@ -8,13 +8,13 @@ Dinghy Ping is a simple network debugging interface meant to be deployed into yo
 
 <img width="906" alt="dinghy ping input" src="https://user-images.githubusercontent.com/538171/51016402-1c0b8100-1525-11e9-81f4-23bb3ef1f687.png">
 
-###### Display for response headers
+#### Display for response headers
 <img width="948" alt="Screen Shot 2019-07-25 at 11 05 32 AM" src="https://user-images.githubusercontent.com/538171/61897586-3bb83480-aecc-11e9-9fcb-2c379e5f23bb.png">
 
-###### Formated display for response body
+#### Formated display for response body
 <img width="1127" alt="Screen Shot 2019-07-25 at 11 07 28 AM" src="https://user-images.githubusercontent.com/538171/61897679-6e622d00-aecc-11e9-881f-0219f3832d1b.png">
 
-###### View into pod logs, per namespace
+#### Pod logs, per namespace
 <img width="984" alt="Screen Shot 2019-07-25 at 11 01 50 AM" src="https://user-images.githubusercontent.com/538171/61897763-9ce00800-aecc-11e9-9312-1bddd4677203.png">
 
 #### Dinghy ping single endpoint
