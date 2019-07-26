@@ -4,6 +4,13 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.0 (2019-07-26)
+
+-[Zane]
+  * Tail lines feature, default 100. This changes behavior of log viewing
+  * Add parameter option for preview line numbers
+  * Update function docs
+
 ## v0.2.0 (2019-07-24)
 
 - [Zane, Ian, Tatiana, Bassam, Kristin] - New UI, pod logs, deployment logs

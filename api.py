@@ -18,6 +18,8 @@ from kubernetes.client.rest import ApiException
 COMPLETED_REQUEST_COUNTER = Counter('dingy_pings_completed', 'Count of completed dinghy ping requests')
 FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy ping requests')
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
+TAIL_LINES_DEFAULT = 100
+LOGS_PREVIEW_LENGTH = 1000
 
 # Configure kubernetes client
 if not "IN_TRAVIS" in os.environ:
@@ -156,6 +158,7 @@ def form_input(req, resp):
 
 @api.route("/form-input-tcp-connection-test")
 async def form_input_tcp_connection_test(req, resp):
+    """Form input endpoint for tcp connection test"""
     logging.basicConfig(level=logging.DEBUG)
     tcp_endpoint = req.params['tcp-endpoint']
     tcp_port = req.params['tcp-port']
@@ -190,6 +193,7 @@ async def form_input_tcp_connection_test(req, resp):
 
 @api.route("/form-input-dns-info")
 async def form_input_dns_info(req, resp):
+    """Form input endpoint for dns info"""
     domain = req.params['domain']
     
     if 'nameserver' in req.params.keys():
@@ -219,32 +223,36 @@ def list_pods(req, resp):
 
 @api.route("/get/pod-logs")
 def dinghy_get_pod_logs(req, resp):
+    """Form input page for pod logs, input namespace"""
     resp.content = api.template(
         'pod_logs.html'
     )
 
 
 @api.route("/post/pod-logs")
-def dinghy_post_pod_logs(req, resp):
+def dinghy_post_pod_logs(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
     """Landing page for Dinghy-ping pod logs input html form"""
     if 'namespace' in req.params.keys():
         namespace = req.params['namespace']
-    else:
-        namespace = "default" 
+
+    if 'tail_lines' in req.params.keys():
+        tail_lines = req.params['tail_lines']
 
     resp.content = api.template(
         'pod_logs_input.html',
         all_pods=_get_all_pods(namespace=namespace),
+        tail_lines=tail_lines
     )
 
 
 @api.route("/input-pod-logs")
-def form_input_pod_logs(req, resp):
+def form_input_pod_logs(req, resp, *, tail_lines=TAIL_LINES_DEFAULT):
     """List pods in namespace and click on one to display logs"""
     pod = req.params['pod']
     namespace = req.params['namespace']
+    tail_lines = req.params['tail_lines']
 
-    logs = _get_pod_logs(pod, namespace)
+    logs = _get_pod_logs(pod, namespace, tail_lines)
 
     resp.content = api.template(
         'pod_logs_output.html',
@@ -252,9 +260,16 @@ def form_input_pod_logs(req, resp):
     )
     
 @api.route("/deployment-logs/{namespace}/{name}")
-def dinghy_deployment_logs(req, resp, *, namespace, name):
-    logs = _get_deployment_logs(namespace, name)
-    logs_preview = logs[0:1000]
+def dinghy_deployment_logs(req, resp, *, 
+                           namespace, name,
+                           tail_lines=TAIL_LINES_DEFAULT,
+                           preview=LOGS_PREVIEW_LENGTH):
+    """Get pod logs for a given deployment"""
+    if 'tail_lines' in req.params.keys():
+        tail_lines = req.params['tail_lines']
+    logs = _get_deployment_logs(namespace, name, tail_lines)
+    logs_preview = logs[0:preview]
+    
 
     if 'json' in req.params.keys():
         if 'preview' in req.params.keys():
@@ -267,8 +282,8 @@ def dinghy_deployment_logs(req, resp, *, namespace, name):
              logs=logs
         )
 
-def _get_deployment_logs(namespace, name):
-    # Gather pod names from label selector
+def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
+    """Gather pod names via K8s label selector"""
     pods = []
     try:
         api_response = k8s_client.list_namespaced_pod(namespace, label_selector='release={}'.format(name))
@@ -282,20 +297,21 @@ def _get_deployment_logs(namespace, name):
     try:
         for pod in pods:
             logs += pod + "\n"
-            logs += k8s_client.read_namespaced_pod_log(pod, namespace)
+            logs += k8s_client.read_namespaced_pod_log(pod, namespace, tail_lines=tail_lines)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
     return logs
 
-def _get_pod_logs(pod, namespace):
+def _get_pod_logs(pod, namespace, tail_lines=TAIL_LINES_DEFAULT):
     """Read pod logs"""
     try:
-        ret = k8s_client.read_namespaced_pod_log(pod, namespace)
+        ret = k8s_client.read_namespaced_pod_log(pod, namespace, tail_lines=tail_lines)
     except ApiException as e:
         logging.error("Exception when calling CoreV1Api->read_namespaced_pod_log: %s\n" % e)
 
     return ret
-    
+
+
 def _get_all_namespaces():
     namespaces = []
     ret = k8s_client.list_namespace(watch=False)
@@ -303,6 +319,7 @@ def _get_all_namespaces():
         namespaces.append(i.metadata.name)
 
     return namespaces
+
 
 def _get_all_pods(namespace=None):
     pods = {}
@@ -317,6 +334,7 @@ def _get_all_pods(namespace=None):
         pods.update({ pod: i.metadata.namespace} )
 
     return pods
+
 
 def _gather_dns_A_info(domain, nameserver):
     dns_info_A = dinghy_dns.DinghyDns(domain, rdata_type=dns.rdatatype.A, nameserver=nameserver)
@@ -373,6 +391,7 @@ def _process_request(protocol, domain, params, headers):
     d.save_ping()
 
     return domain_response_code, domain_response_text, domain_response_time_ms, domain_response_headers
+
 
 def _get_all_pinged_urls():
     """Get pinged URLs from Dinghy-ping data module"""
