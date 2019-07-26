@@ -230,7 +230,7 @@ def dinghy_get_pod_logs(req, resp):
 
 
 @api.route("/post/pod-logs")
-def dinghy_post_pod_logs(req, resp, namespace="default", tail_lines=100):
+def dinghy_post_pod_logs(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
     """Landing page for Dinghy-ping pod logs input html form"""
     if 'namespace' in req.params.keys():
         namespace = req.params['namespace']
