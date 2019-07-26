@@ -5,6 +5,8 @@ import time
 import asyncio
 import os
 import json
+import sys
+sys.path.insert(0, './dinghy_ping/models/')
 import data
 import dinghy_dns
 import dns.rdatatype
@@ -20,6 +22,7 @@ FAILED_REQUEST_COUNTER = Counter('dingy_pings_failed', 'Count of failed dinghy p
 REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processing request')
 TAIL_LINES_DEFAULT = 100
 LOGS_PREVIEW_LENGTH = 1000
+TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 
 # Configure kubernetes client
 if not "IN_TRAVIS" in os.environ:
@@ -30,7 +33,8 @@ def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
-api = responder.API(title="Dinghy Ping", version="1.0", openapi="3.0.0", docs_route="/docs")
+print(os.getcwd())
+api = responder.API(title="Dinghy Ping", templates_dir=TEMPLATE_DIR, version="1.0", openapi="3.0.0", docs_route="/docs")
 api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
 # For local mac docker image creation and testing, switch to host.docker.internal

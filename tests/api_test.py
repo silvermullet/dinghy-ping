@@ -1,9 +1,9 @@
 import json
 import pytest
 import sys
-sys.path.insert(0, './')
-import api as service
-import data
+sys.path.insert(0, './dinghy_ping/')
+import services.api as service
+import models.data as data
 
 
 with open('tests/multiple_domains.json') as f:
