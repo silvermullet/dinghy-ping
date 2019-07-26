@@ -4,9 +4,12 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.1 (2019-07-26)
+- [Zane] - adding max-h-full to fix truncated logout in HTML
+
 ## v0.3.0 (2019-07-26)
 
--[Zane]
+- [Zane]
   * Tail lines feature, default 100. This changes behavior of log viewing
   * Add parameter option for preview line numbers
   * Update function docs
