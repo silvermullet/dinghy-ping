@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.2 (2019-07-26)
+- [Zane] - Remove overflow hidden in CSS. This is causing multiple line log entries from being shown 
+
 ## v0.3.1 (2019-07-26)
 - [Zane] - adding max-h-full to fix truncated logout in HTML
 
