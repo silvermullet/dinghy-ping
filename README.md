@@ -74,6 +74,11 @@ helm init
 helm upgrade --install dinghy-ping ./helm/dinghy-ping/ --set image.tag=v0.2.0 --set ingress.subdomain="localhost"
 ```
 
+##### Run tests
+```
+pytest tests/
+```
+
 ##### Navigate to Dinghy-Ping in browser
 http://dinghy-ping.localhost
 
