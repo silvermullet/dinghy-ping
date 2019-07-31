@@ -2,7 +2,12 @@ import os
 import responder
 import json
 from kubernetes import client, config
-
+from prometheus_client import start_http_server
+from dinghy_ping.controllers.LogController import LogController
+from dinghy_ping.controllers.TcpController import TcpController
+from dinghy_ping.controllers.DnsController import DnsController
+from dinghy_ping.controllers.HttpController import HttpController
+from dinghy_ping.controllers.PingController import PingController
 
 TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 TITLE = "Dinghy Ping"
@@ -24,3 +29,14 @@ api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
 # For local mac docker image creation and testing, switch to host.docker.internal
 redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
+
+# inject api into class
+LogController(api, k8s_client)
+DnsController(api, k8s_client)
+HttpController(api, k8s_client)
+PingController(api, redis_host)
+TcpController(api, redis_host)
+
+if __name__ == '__main__':
+    start_http_server(8000)
+    api.run(address="0.0.0.0", port=80, debug=True)
