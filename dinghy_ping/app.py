@@ -1,19 +1,21 @@
 import os
 import responder
 import json
+import sys
 from kubernetes import client, config
 from prometheus_client import start_http_server
-from dinghy_ping.controllers.LogController import LogController
-from dinghy_ping.controllers.TcpController import TcpController
-from dinghy_ping.controllers.DnsController import DnsController
-from dinghy_ping.controllers.HttpController import HttpController
-from dinghy_ping.controllers.PingController import PingController
+sys.path.insert(0, './dinghy_ping/')
+from controllers.LogController import LogController
+from controllers.TcpController import TcpController
+from controllers.DnsController import DnsController
+from controllers.HttpController import HttpController
+from controllers.PingController import PingController
 
-TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 TITLE = "Dinghy Ping"
 VERSION = "1.0"
 OPENAPI_VERSION = "3.0.0"
 DOCS_ROUTE = "/docs"
+TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 
 # Configure kubernetes client
 if not "IN_TRAVIS" in os.environ:
@@ -31,11 +33,12 @@ api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
 
 # inject api into class
-LogController(api, k8s_client)
-DnsController(api, k8s_client)
-HttpController(api, k8s_client)
-PingController(api, redis_host)
+DnsController(api)
 TcpController(api, redis_host)
+LogController(api, k8s_client)
+PingController(api, redis_host)
+HttpController(api, k8s_client, redis_host)
+
 
 if __name__ == '__main__':
     start_http_server(8000)

@@ -1,19 +1,26 @@
 import json
 import pytest
 import sys
-sys.path.insert(0, './dinghy_ping/')
-import services.api as service
+import os
+import responder
+# from dinghy_ping.controllers.PingController import PingController
+# from dinghy_ping.services.PingService import PingService
+sys.path.insert(0,'./dinghy_ping/')
 import models.data as data
 
+TITLE = "Dinghy Ping"
+VERSION = "1.0"
+OPENAPI_VERSION = "3.0.0"
+DOCS_ROUTE = "/docs"
+TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 
 with open('tests/multiple_domains.json') as f:
     multiple_domains = json.load(f)
 
-
 @pytest.fixture
 def api():
-    return service.api
-
+    api = responder.API(title=TITLE, templates_dir=TEMPLATE_DIR, version=VERSION, openapi=OPENAPI_VERSION, docs_route=DOCS_ROUTE)
+    return api
 
 @pytest.fixture
 def session(api):
@@ -25,7 +32,7 @@ def test_dinghy_ping_google_http(api):
     assert r.status_code == 200
 
 
-def test_dinghy_ping_google_http(api):
+def test_dinghy_ping_google_tcp(api):
     r = api.requests.get("/form-input-tcp-connection-test?tcp-endpoint=google.com&tcp-port=443")
     assert r.status_code == 200
 
@@ -58,7 +65,9 @@ def test_multiple_domains_request_for_microsoft(api):
     assert response_json['domains_response_results'][2]['domain_response_code'] == 200
 """
 
-def test_ping_saved_results(api):
-    api.requests.get("/ping/http/www.google.com")
-    p = service._get_all_pinged_urls()
-    assert "http://www.google.com/" in p 
+# def test_ping_saved_results(api):
+#     redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
+#     api.requests.get("/ping/http/www.google.com")
+#     ping_service = PingService(redis_host)
+#     p = ping_service._get_all_pinged_urls()
+#     assert "http://www.google.com/" in p 

@@ -10,7 +10,6 @@ class TcpController:
   def __init__(self, api, redis_host):
     self.redis_host = redis_host
     global api
-    self.api = api
     api = api
 
   @api.route("/form-input-tcp-connection-test")
