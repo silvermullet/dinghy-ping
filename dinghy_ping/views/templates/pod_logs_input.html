@@ -6,7 +6,7 @@
         <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - Pods</a></h1>
         <br>
             {% for pod, namespace in all_pods.items() %}
-              <a href="/input-pod-logs?namespace={{namespace}}&pod={{pod}}&tail_lines={{tail_lines}}">{{namespace}} - {{pod}}</a>
+              <a href="/input-pod-logs?namespace={{namespace}}&pod={{pod}}&tail_lines={{tail_lines}}">{{namespace}} - {{pod}}</a> <a href="/pod-describe?namespace={{namespace}}&pod={{pod}}"> describe</a>
               <br>
             {% endfor %}
       </div>
