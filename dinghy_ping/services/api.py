@@ -23,6 +23,7 @@ REQUEST_TIME = Summary('dinghy_request_processing_seconds', 'Time spent processi
 TAIL_LINES_DEFAULT = 100
 LOGS_PREVIEW_LENGTH = 1000
 TEMPLATE_DIR = 'dinghy_ping/views/templates/'
+STATIC_DIR = 'dinghy_ping/views/static/'
 
 # Configure kubernetes client
 if not "IN_TRAVIS" in os.environ:
@@ -34,7 +35,7 @@ def to_pretty_json(value):
                       indent=4, separators=(',', ': '))
 
 print(os.getcwd())
-api = responder.API(title="Dinghy Ping", templates_dir=TEMPLATE_DIR, version="1.0", openapi="3.0.0", docs_route="/docs")
+api = responder.API(title="Dinghy Ping", templates_dir=TEMPLATE_DIR, static_dir=STATIC_DIR, version="1.0", openapi="3.0.0", docs_route="/docs")
 api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
 # For local mac docker image creation and testing, switch to host.docker.internal
@@ -225,16 +226,16 @@ def list_pods(req, resp):
     return _get_all_pods(namespace)
 
 
-@api.route("/get/pod-logs")
-def dinghy_get_pod_logs(req, resp):
-    """Form input page for pod logs, input namespace"""
+@api.route("/get/pods")
+def dinghy_get_pods(req, resp):
+    """Form input page for pod logs and describe, input namespace"""
     resp.content = api.template(
-        'pod_logs.html'
+        'pods.html'
     )
 
 
-@api.route("/post/pod-logs")
-def dinghy_post_pod_logs(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
+@api.route("/post/pod-details")
+def dinghy_post_pod_details(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
     """Landing page for Dinghy-ping pod logs input html form"""
     if 'namespace' in req.params.keys():
         namespace = req.params['namespace']
@@ -262,7 +263,25 @@ def form_input_pod_logs(req, resp, *, tail_lines=TAIL_LINES_DEFAULT):
         'pod_logs_output.html',
         logs=logs
     )
+
+
+@api.route("/pod-describe")
+def dinghy_pod_describe(req, resp):
+    """Describe given pod and display response"""
+    pod = req.params['pod']
+    namespace = req.params['namespace']
+
+    described = _describe_pod(pod, namespace)
+
+    logging.debug(f"Here is described output: {described}")
+    resp.content = api.template(
+        'pod_describe_output.html',
+        described=described,
+        pod=pod,
+        namespace=namespace
+    )
     
+
 @api.route("/deployment-logs/{namespace}/{name}")
 def dinghy_deployment_logs(req, resp, *, 
                            namespace, name,
@@ -315,6 +334,15 @@ def _get_pod_logs(pod, namespace, tail_lines=TAIL_LINES_DEFAULT):
 
     return ret
 
+
+def _describe_pod(pod, namespace):
+    """Describes pod"""
+    try:
+        ret = k8s_client.read_namespaced_pod(pod, namespace, pretty='true')
+    except ApiException as e:
+        logging.error("Exception when calling CoreV1Api->read_namespaced_pod: %s\n" % e)
+
+    return ret
 
 def _get_all_namespaces():
     namespaces = []

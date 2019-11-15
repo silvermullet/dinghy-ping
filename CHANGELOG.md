@@ -4,6 +4,11 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.3 (2019-11-15)
+- [Tatiana] - Refactor code layout
+- [Zane] - Fix static image location
+- [Zane] - Adding describe pod
+
 ## v0.3.2 (2019-07-26)
 - [Zane] - Remove overflow hidden in CSS. This is causing multiple line log entries from being shown 
 
