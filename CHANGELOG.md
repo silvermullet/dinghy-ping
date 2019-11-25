@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.5 (2019-11-25)
+- [Zane] - Fixing list layout for pods by namespace 
+
 ## v0.3.4 (2019-11-25)
 - [Zane] - New pod look up page, no user input required
 

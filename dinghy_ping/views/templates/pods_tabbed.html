@@ -8,15 +8,15 @@
                     class="no-underline hover:underline">Dinghy
                     Ping - Pods by Namespace</a></h1>
             <br>
-            <ul class="flex border-b">
                 {% for namespace in namespaces %}
+                <ul class="flex border-b list-none">
                 <li class="-mb-px mr-1">
                   <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
                     <a href="/get/pod-details?namespace={{namespace}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg"> {{ namespace }}</a> 
                   </div>
                 </li>
+                </ul>
                 {% endfor %}
-            </ul>
         </div>
     </div>
 {% endblock %}
