@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.3.4 (2019-11-25)
+- [Zane] - New pod look up page, no user input required
+
 ## v0.3.3 (2019-11-15)
 - [Tatiana] - Refactor code layout
 - [Zane] - Fix static image location
