@@ -34,7 +34,6 @@ def to_pretty_json(value):
     return json.dumps(value, sort_keys=True,
                       indent=4, separators=(',', ': '))
 
-print(os.getcwd())
 api = responder.API(title="Dinghy Ping", templates_dir=TEMPLATE_DIR, static_dir=STATIC_DIR, version="1.0", openapi="3.0.0", docs_route="/docs")
 api.jinja_env.filters['tojson_pretty'] = to_pretty_json
 
@@ -229,18 +228,23 @@ def list_pods(req, resp):
 @api.route("/get/pods")
 def dinghy_get_pods(req, resp):
     """Form input page for pod logs and describe, input namespace"""
+    namespaces = _get_all_namespaces()
     resp.content = api.template(
-        'pods.html'
+        'pods_tabbed.html',
+        namespaces=namespaces
     )
 
 
-@api.route("/post/pod-details")
-def dinghy_post_pod_details(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
+@api.route("/get/pod-details")
+def dinghy_get_pod_details(req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
     """Landing page for Dinghy-ping pod logs input html form"""
-    if 'namespace' in req.params.keys():
+
+    if 'namespace' in req.params:
+        logging.info(f"found namespace input {namespace}")
         namespace = req.params['namespace']
 
-    if 'tail_lines' in req.params.keys():
+    if 'tail_lines' in req.params:
+        logging.info(f"found tail_lines input {tail_lines}")
         tail_lines = req.params['tail_lines']
 
     resp.content = api.template(

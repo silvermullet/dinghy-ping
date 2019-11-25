@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Dinghy Ping - Pods by Namespace{% endblock %}
+
+{% block content %}
+    <div class="flex flex-wrap">
+        <div class="px-6 py-4 max-w-full rounded shadow-md border border-green-300 bg-gray-100">
+            <h1 class="text-xl font-semibold hover:text-green-400"><a href="/get/pods"
+                    class="no-underline hover:underline">Dinghy
+                    Ping - Pods by Namespace</a></h1>
+            <br>
+            <ul class="flex border-b">
+                {% for namespace in namespaces %}
+                <li class="-mb-px mr-1">
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    <a href="/get/pod-details?namespace={{namespace}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg"> {{ namespace }}</a> 
+                  </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+{% endblock %}
