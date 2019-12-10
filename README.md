@@ -84,3 +84,5 @@ pytest tests/
 http://dinghy-ping.localhost
 
 ![dinghy copy](https://user-images.githubusercontent.com/538171/50532052-77228a00-0ac8-11e9-8ffd-12f53f55724e.png)
+
+test
