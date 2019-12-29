@@ -9,16 +9,18 @@ graphene = "==2.1.7"
 graphql-core = "==2.2"
 graphql-relay = "==2.0.0"
 graphql-server-core = "==1.1.1"
-
+aiohttp = "==3.6.2"
 redis = "==3.2.1"
 prometheus_client = "==0.7.1"
 dnspython = "==1.16.0"
-kubernetes = "==10.0.0"
+kubernetes_asyncio = "==10.0.1"
 
 [dev-packages]
 pylint = "*"
 pytest = "*"
 ipython = "*"
+autopep8 = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.8"
