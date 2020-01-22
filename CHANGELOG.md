@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.4.1 (2020-01-21)
+- [Zane] - Use wss for secure requests
+
 ## v0.4.0 (2020-01-19)
 - [Zane] - Adding websocket stream logs support, PEP8 fixes
 
