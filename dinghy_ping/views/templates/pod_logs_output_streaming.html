@@ -10,7 +10,7 @@
 
 <script>
 function connect() {
-  var ws = new WebSocket('ws://{{dinghy_ping_host}}/ws/logstream?namespace={{namespace}}&name={{name}}');
+  var ws = new WebSocket('wss://{{dinghy_ping_host}}/ws/logstream?namespace={{namespace}}&name={{name}}');
 
   ws.onmessage = function(event) {
     let message = event.data;

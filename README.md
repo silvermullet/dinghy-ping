@@ -8,6 +8,12 @@ Dinghy Ping is a simple network debugging interface meant to be deployed into yo
 
 <img width="906" alt="dinghy ping input" src="https://user-images.githubusercontent.com/538171/51016402-1c0b8100-1525-11e9-81f4-23bb3ef1f687.png">
 
+
+#### Requirements 
+
+ * If using a LoadBalancer with your ingress, there may be some configuration requirements to support web sockets. For example, an AWS ELB must be using "tcp" for backend request.
+   See this for more details as to why: https://github.com/kubernetes/ingress-nginx/issues/3746
+
 #### Display for response headers
 <img width="948" alt="Screen Shot 2019-07-25 at 11 05 32 AM" src="https://user-images.githubusercontent.com/538171/61897586-3bb83480-aecc-11e9-9fcb-2c379e5f23bb.png">
 
