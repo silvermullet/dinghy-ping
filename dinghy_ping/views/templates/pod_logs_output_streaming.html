@@ -9,6 +9,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script>
+
+function scrollWin() {
+  window.scrollBy(0, 150);
+}
+
 function connect() {
   var ws = new WebSocket('wss://{{dinghy_ping_host}}/ws/logstream?namespace={{namespace}}&name={{name}}');
 
@@ -16,7 +21,8 @@ function connect() {
     let message = event.data;
     let messageElem = document.createElement('div');
     messageElem.textContent = message;
-    document.getElementById('logs').prepend(messageElem);
+    document.getElementById('logs').append(messageElem);
+    scrollWin();
   };
 
   ws.onclose = function(e) {
@@ -33,6 +39,7 @@ function connect() {
 }
 
 connect();
+
 </script>
 
 <style>
@@ -53,6 +60,7 @@ connect();
     <div class="px-6 py-4 m-4 max-w-full max-h-full rounded shadow-lg border border-green-300 bg-gray-100">
     <div class="font-serif text-black text-sm whitespace-pre-wrap">
         <pre><code id="logs" class='language-bash font-serif text-black text-large'></code></pre>
+    </div>
     </div>
   </div>
 </div>

@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.4.2 (2020-01-28)
+- [Zane] - Scroll down and append logs 
+
 ## v0.4.1 (2020-01-21)
 - [Zane] - Use wss for secure requests
 
