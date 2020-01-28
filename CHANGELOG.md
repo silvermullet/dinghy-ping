@@ -4,6 +4,9 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.4.3 (2020-01-28)
+- [Zane] - Tail log option, keep static log output
+
 ## v0.4.2 (2020-01-28)
 - [Zane] - Scroll down and append logs 
 
