@@ -15,7 +15,7 @@ service:
   port: 80
 
 nginxIngress:
-  enabled: true
+  enabled: false
   className: nginx
   sslRedirect: true
   tls: []
