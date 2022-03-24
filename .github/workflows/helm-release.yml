@@ -1,6 +1,11 @@
 name: Release Helm Chart 
 
 on:
+  workflow_run:
+    workflows: ["Lint and Test Charts"]
+    branches: [master]
+    types: 
+      - completed
   push:
     branches:
       - master
