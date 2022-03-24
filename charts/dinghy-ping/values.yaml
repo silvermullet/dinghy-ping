@@ -1,0 +1,30 @@
+replicaCount: 1 
+nameOverride: dinghy-ping-beta
+
+image:
+  repository: sepulworld/dinghy-ping
+  tag: latest
+  pullPolicy: Always
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: true
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+  subdomain: voltron.cloud
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
