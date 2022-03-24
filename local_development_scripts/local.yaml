@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dinghy-ping
+  labels:
+    app: dinghy-ping
+spec:
+  selector:
+    matchLabels:
+      app: dinghy-ping
+  template:
+    metadata:
+      labels:
+        app: dinghy-ping
+    spec:
+      containers:
+        - name: dinghy-ping
+          image: dinghy-ping
+          env:
+            - name: DINGHY_LISTEN_PORT
+              value: "8080"
+          ports:
+            - containerPort: 8080

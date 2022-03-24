@@ -28,6 +28,7 @@ TEMPLATE_DIR = 'dinghy_ping/views/templates/'
 STATIC_DIR = 'dinghy_ping/views/static/'
 
 environment = os.getenv("ENVIRONMENT", "none")
+dd_tags = [f"environment={environment}"]
 
 
 def initialize_datadog():
@@ -557,7 +558,7 @@ async def event_stream_websocket(ws):
     elif filter == "pod":
         field_selector = "involvedObject.kind=Pod"
     else:
-        logging.info(f'event-stream filter is defaulting to all events')
+        logging.info('event-stream filter is defaulting to all events')
         field_selector = ""
 
     v1 = client.CoreV1Api()
