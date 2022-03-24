@@ -1,0 +1,26 @@
+{{- if .Values.istioVirtualService.enabled -}}
+{{- $fullName := include "dinghy-ping.fullname" . -}}
+{{- $ingressPath := .Values.istioVirtualService.path -}}
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: {{ $fullName }}
+  labels:
+    app: {{ include "dinghy-ping.name" . }}
+    chart: {{ include "dinghy-ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  gateways:
+  {{ toYaml . | indent 4 }}
+  hosts:
+  - {{ .Release.Name }}.{{- .Values.ingress.subdomain }}
+  http:
+  - name: "{{ .Release.Name }}-routes"
+    match:
+    - uri:
+        prefix: "/"
+    route:
+    - destination:
+        host: {{ template "dinghy-ping.fullname" . }}
+{{- end }}

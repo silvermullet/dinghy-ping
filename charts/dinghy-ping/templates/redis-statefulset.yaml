@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "dinghy-ping.fullname" . }}-redis
+  labels:
+    app: {{ include "dinghy-ping.name" . }}-redis
+    chart: {{ include "dinghy-ping.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  serviceName: {{ include "dinghy-ping.fullname" . }}-redis 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "dinghy-ping.name" . }}-redis
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "dinghy-ping.name" . }}-redis
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ include "dinghy-ping.name" . }}-redis
+        image:  redislabs/rejson:latest
+        imagePullPolicy: Always
+        args: ["--appendonly", "yes", "--save", "30", "1", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
+        ports:
+        - containerPort: 6379
+          name: redis-json
+        volumeMounts:
+        - name: redis-volume-{{ .Release.Name }}
+          mountPath: /data
+        livenessProbe:
+          tcpSocket:
+            port: 6379 
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379 
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-volume-{{ .Release.Name }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.redisStorageSize }}

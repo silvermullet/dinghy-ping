@@ -13,8 +13,20 @@ service:
   type: ClusterIP
   port: 80
 
-ingress:
+nginxIngress:
   enabled: true
+  className: nginx
+  sslRedirect: true
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+  subdomain: voltron.cloud
+
+istioVirtualService:
+  enabled: false
+  # gateways:
+  #  - istio-gateways/private-gateway
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
@@ -28,3 +40,5 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+redisStorageSize: 2Gi

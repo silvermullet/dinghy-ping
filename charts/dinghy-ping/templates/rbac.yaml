@@ -11,8 +11,11 @@ metadata:
   name: {{ include "dinghy-ping.fullname" . }}-pod-reader
 rules:
 - apiGroups: [""]
-  resources: ["pods", "pods/log", "namespaces"]
+  resources: ["pods", "pods/log", "namespaces", "events"]
   verbs: ["get", "watch", "list", "log"]
+- apiGroups: ["apps", "extensions"]
+  resources: ["deployments", "replicasets"]
+  verbs: ["get", "watch", "list"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
