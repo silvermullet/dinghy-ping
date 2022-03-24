@@ -6,9 +6,6 @@ on:
     branches: [master]
     types: 
       - completed
-  push:
-    branches:
-      - master
 
 jobs:
   release:
