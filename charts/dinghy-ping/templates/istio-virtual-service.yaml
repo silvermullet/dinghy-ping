@@ -14,7 +14,7 @@ spec:
   gateways:
   {{ toYaml . | indent 4 }}
   hosts:
-  - {{ .Release.Name }}.{{- .Values.ingress.subdomain }}
+  - {{ .Release.Name }}.{{- .Values.subdomain }}
   http:
   - name: "{{ .Release.Name }}-routes"
     match:

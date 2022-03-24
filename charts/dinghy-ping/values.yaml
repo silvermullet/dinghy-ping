@@ -1,11 +1,12 @@
-replicaCount: 1 
-nameOverride: dinghy-ping-beta
+replicaCount: 1
 
 image:
   repository: sepulworld/dinghy-ping
   tag: latest
   pullPolicy: Always
 
+# input your subdomain here
+subdomain: voltron.cloud
 nameOverride: ""
 fullnameOverride: ""
 
@@ -21,7 +22,6 @@ nginxIngress:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-  subdomain: voltron.cloud
 
 istioVirtualService:
   enabled: false
@@ -31,7 +31,6 @@ istioVirtualService:
   #  - secretName: chart-example-tls
   #    hosts:
   #      - chart-example.local
-  subdomain: voltron.cloud
 
 resources: {}
 

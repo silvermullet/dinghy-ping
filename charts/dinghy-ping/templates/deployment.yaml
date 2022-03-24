@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "dinghy-ping.fullname" . }}
@@ -28,7 +28,7 @@ spec:
             - name: REDIS_HOST
               value: {{ include "dinghy-ping.fullname" . }}-redis
             - name: DINGHY_PING_HOST
-              value: {{ .Release.Name }}.{{- .Values.ingress.subdomain }}
+              value: {{ .Release.Name }}.{{- .Values.subdomain }}
           ports:
             - name: http
               containerPort: 80
