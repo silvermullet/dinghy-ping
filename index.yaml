@@ -3,6 +3,18 @@ entries:
   dinghy-ping:
   - apiVersion: v1
     appVersion: 0.4.2
+    created: "2022-03-24T20:24:49.458972035Z"
+    description: A Helm chart for dinghy-ping
+    digest: 0f206b14f360bb9066bdbc13d42ff39ad03b96c4be02d3b57e686e10a3c5a189
+    icon: https://user-images.githubusercontent.com/538171/64288240-732bef00-cf16-11e9-830a-7b08759bffad.jpg
+    maintainers:
+    - name: sepulworld
+    name: dinghy-ping
+    urls:
+    - https://github.com/silvermullet/dinghy-ping/releases/download/dinghy-ping-0.4.1/dinghy-ping-0.4.1.tgz
+    version: 0.4.1
+  - apiVersion: v1
+    appVersion: 0.4.2
     created: "2022-03-24T20:23:09.440946185Z"
     description: A Helm chart for dinghy-ping
     digest: 9f591078d764257938d02597a5d5c1bcc906452e0cf1a65b5cd226f90fee82d4
@@ -43,4 +55,4 @@ entries:
     urls:
     - https://github.com/silvermullet/dinghy-ping/releases/download/dinghy-ping-0.2.3/dinghy-ping-0.2.3.tgz
     version: 0.2.3
-generated: "2022-03-24T20:23:09.440962485Z"
+generated: "2022-03-24T20:24:49.459143433Z"
