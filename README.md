@@ -62,32 +62,16 @@ curl "https://127.0.0.1/deployment-logs/kube-addons/dinghy-ping?json=true"
 
 * requires Docker for Mac 2.x or greater
 * Enable Kubernetes on Docker for Mac under preferences
+* Install [Tilt](https://docs.tilt.dev/install.html)
+
+#### Tilt
 
 ```
-# Install ingress-nginx
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml
+tilt up
 ```
-
-##### Update your /etc/hosts
-```
-127.0.0.1 localhost dinghy-ping.localhost
-```
-
-##### Install dinghy-ping helm chart, modify to docker image tag of your branch, pr, or release tag
-```
-# Init helm if your local k8s doesn't have it yet
-helm init
-helm repo add dinghy-ping https://sepulworld.github.io/dinghy-ping-helm-chart/
-helm upgrade --install dinghy-ping dinghy-ping/dinghy-ping --set image.tag=v0.3.3 --set ingress.subdomain="localhost" --namespace default
-```
+Navigate to http://127.0.0.1:8080/
 
 ##### Run tests
 ```
 pytest tests/
 ```
-
-##### Navigate to Dinghy-Ping in browser
-http://dinghy-ping.localhost
-
-![dinghy copy](https://user-images.githubusercontent.com/538171/50532052-77228a00-0ac8-11e9-8ffd-12f53f55724e.png)

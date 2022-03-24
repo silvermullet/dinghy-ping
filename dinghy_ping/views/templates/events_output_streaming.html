@@ -7,6 +7,41 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/themes/prism-tomorrow.min.css" integrity="sha256-xevuwyBEb2ZYh4nDhj0g3Z/rDBnM569hg9Vq6gEw/Sg=" crossorigin="anonymous" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<script>
+
+function scrollWin() {
+  window.scrollBy(0, 150);
+}
+
+function connect() {
+  var ws = new WebSocket('wss://{{dinghy_ping_host}}/ws/event-stream?namespace={{namespace}}&filter={{filter}}');
+
+  ws.onmessage = function(event) {
+    let message = event.data;
+    let messageElem = document.createElement('div');
+    messageElem.textContent = message;
+    document.getElementById('k8sevents').append(messageElem);
+    scrollWin();
+  };
+
+  ws.onclose = function(e) {
+    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+    setTimeout(function() {
+      connect();
+    }, 1000);
+  };
+
+  ws.onerror = function(err) {
+    console.error('Socket encountered error: ', err.message, 'Closing socket');
+    ws.close();
+  };
+}
+
+connect();
+
+</script>
+
 <style>
   code[class*=language-] {
     white-space: pre-wrap;
@@ -17,29 +52,15 @@
 
 {% block content %}
 <br>
+
 <div class="m-4 max-w-full rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
   <div class="px-6 py-4">
-    <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - Describe Pod</a></h1>
+    <h1 class="text-xl font-semibold hover:text-green-400"><a href="/" class="no-underline hover:underline">Dinghy Ping - Pod Events</a></h1>
     <br>
-    <div class="font-bold text-base mb-2">Pod: {{ pod }}</div>
-    <div class="font-bold text-base mb-2">Namespace: {{ namespace }}</div>
     <div class="px-6 py-4 m-4 max-w-full max-h-full rounded shadow-lg border border-green-300 bg-gray-100">
-    <div class="font-serif text-gray-700 text-sm whitespace-pre-wrap">
-    <div class="font-bold text-base mb-2">Events: </div>
-<pre><code class="language-bash font-serif text-gray-700 text-sm">
-    {% for event in events.items() -%}
-      <br>
-      Type: {{ event[1]['Type']}} 
-      Reason: {{ event[1]['Reason']}}
-      From: {{ event[1]['From']}}
-      Age: {{ event[1]['Age']}}
-      Message: {{ event[1]['Message']}}
-      ---
-      <br>
-    {%- endfor %}
-</code></pre>
-    <div class="font-bold text-base mb-2">Details: </div>
-<pre><code class="language-bash font-serif text-gray-700 text-sm">{{ described }}</code></pre>
+    <div class="font-serif text-black text-sm whitespace-pre-wrap">
+        <pre><code id="k8sevents" class='language-bash font-serif text-black text-large'></code></pre>
+    </div>
     </div>
   </div>
 </div>

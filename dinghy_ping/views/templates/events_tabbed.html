@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dinghy Ping - Events by Namespace{% endblock %}
+
+{% block content %}
+    <div class="flex flex-wrap">
+        <div class="px-6 py-4 max-w-full rounded shadow-md border border-green-300 bg-gray-100">
+            <h1 class="text-xl font-semibold hover:text-green-400"><a href="/get/events"
+                    class="no-underline hover:underline">Dinghy
+                    Ping - Event Stream by Namespace</a></h1>
+            <br>
+            <table>
+              <tr>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Namespace</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Pod</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">All</div></th>
+              </tr>
+                {% for namespace in namespaces %}
+                <tr>
+                 <td>
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    <div class="no-underline text-white text-lg"> {{ namespace }}</div>
+                  </div>
+                 </td>
+                 <td>
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    <div class="no-underline hover:underline text-white text-lg"><a href="/event-stream/{{namespace}}/pod" class="no-underline hover:underline text-white text-lg">pod</a></div>
+                  </div>
+                 </td>
+                 <td>
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    <div class="no-underline hover:underline text-white text-lg"><a href="/event-stream/{{namespace}}/all" class="no-underline hover:underline text-white text-lg">all</a></div>
+                  </div>
+                 </td>
+                </tr>
+                {% endfor %}
+                </table>
+        </div>
+    </div>
+{% endblock %}

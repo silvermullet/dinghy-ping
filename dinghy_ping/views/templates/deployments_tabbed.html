@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dinghy Ping - Deployments{% endblock %}
+
+{% block content %}
+    <div class="flex flex-wrap">
+        <div class="px-6 py-4 max-w-full rounded shadow-md border border-green-300 bg-gray-100">
+            <h1 class="text-xl font-semibold hover:text-green-400"><a href="/get/pods"
+                    class="no-underline hover:underline">Dinghy
+                    Ping - Deployments</a></h1>
+            <br>
+            <table>
+              <tr>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Name</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Namespace</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Ready/Available</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Revision</div></th>
+                <th><div class="text-black font-bold py-2 px-4 rounded">Date</div></th>
+              </tr>
+              {% for deployment in deployments %}
+              <tr>
+                <td class="-mb-px mr-1">
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                    <a href="/get/deployment-details?namespace={{deployment.namespace}}&name={{deployment.name}}" class="no-underline hover:underline text-white text-lg">{{ deployment.name}}</a>
+                  </div>
+                </td>
+                <td> <div class="text-black font-bold py-2 px-4 rounded">{{ deployment.namespace }}</div></td>
+                <td>
+                  <div class="text-black font-bold py-2 px-4 rounded">
+                    {{ deployment.status.available_replicas }}/{{ deployment.status.ready_replicas }}
+                  </div>
+                </td>
+                <td><div class="text-black font-bold py-2 px-4 rounded">{{ deployment.revision }}</div></td>
+                <td><div class="text-black font-bold py-2 px-4 rounded">{{ deployment.date }}</div></td>
+              </tr>
+              {% endfor %}
+              </table>
+        </div>
+    </div>
+{% endblock %}

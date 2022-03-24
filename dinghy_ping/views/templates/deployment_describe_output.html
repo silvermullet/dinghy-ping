@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dinghy Ping{% endblock %}
+{% block head %}
+{{ super() }}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/prism.min.js" integrity="sha256-NFZVyNmS1YlmiklazBA+TALYJlJtZj/y/i/oADk6CVE=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/components/prism-json.min.js" integrity="sha256-18m89UBQcWGjPHHo64UD+sQx4SpMxiRI1F0MbefKXWw=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.16.0/themes/prism-tomorrow.min.css" integrity="sha256-xevuwyBEb2ZYh4nDhj0g3Z/rDBnM569hg9Vq6gEw/Sg=" crossorigin="anonymous" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  code[class*=language-] {
+    white-space: pre-wrap;
+    font-size: 0.85em;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<br>
+<div class="m-4 max-w-full rounded overflow-hidden shadow-lg border border-green-300 bg-gray-100">
+  <div class="px-6 py-4">
+    <h1 class="text-xl font-semibold hover:text-green-400"><a href="" class="no-underline hover:underline">Dinghy Ping - Describe Deployment</a></h1>
+    <br>
+    <div class="font-bold text-base mb-2">Deployment: {{ deployment.metadata.name }}</div>
+    <div class="font-bold text-base mb-2">Namespace: {{ deployment.metadata.namespace }}</div>
+    <div class="font-bold text-base mb-2">Revision: {{ deployment.metadata.generation }}</div>
+    <div class="font-bold text-base mb-2"> Available Replicas: {{ deployment.status.available_replicas }}</div>
+    <div class="font-bold text-base mb-2"> Ready Replicas: {{ deployment.status.ready_replicas }}</div>
+    <div class="text-base mb-2"> <a class="font-bold no-underline hover:underline" href="/get/pod-details?namespace={{ deployment.metadata.namespace}}&filter={{ deployment.metadata.name }}">Deployment PODS </a>
+      <br/>
+      {% for pod, pod_obj in all_pods.items() %}
+       {{pod}} <a href="/input-pod-logs?namespace={{deployment.metadata.namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">logs</a> <a href="/input-pod-logs-stream?namespace={{deployment.metadata.namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">tail</a> <a href="/pod-describe?namespace={{deployment.metadata.namespace}}&pod={{pod}}"  class="no-underline hover:underline text-blue-500 text-lg"> describe</a>
+      <br/>
+      {% endfor %}
+    </div>
+     <div class="font-bold text-base mb-2"> Created: {{ deployment.metadata.creation_timestamp }}</div>
+    <div class="px-6 py-4 m-4 max-w-full max-h-full rounded shadow-lg border border-green-300 bg-gray-100">
+    <div class="font-serif text-gray-700 text-sm whitespace-pre-wrap">
+    <div class="font-bold text-base mb-2">Raw: </div>
+<pre><code class="language-bash font-serif text-gray-700 text-sm">
+   {{ deployment }}
+</code></pre>
+  </div>
+</div>
+{% endblock %}
