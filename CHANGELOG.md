@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.5.1 (2022-03-24)
+- [Zane]
+  - pyyaml version bump fix security issue
+
 ## v0.5.0 (2022-03-24)
 - [Zane] 
   - Redis stateful set for search results
