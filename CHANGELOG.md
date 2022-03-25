@@ -4,6 +4,12 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.5.0 (2022-03-24)
+- [Zane] 
+  - Redis stateful set for search results
+  - New helm chart
+  - New github action workflows
+
 ## v0.4.3 (2020-01-28)
 - [Zane] - Tail log option, keep static log output
 
