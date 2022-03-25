@@ -19,6 +19,7 @@ datadog = "==0.38.0"
 ddtrace = "==0.41.0"
 hyper-kube-config = "*"
 typesystem = "==0.2.5"
+pyyaml = ">=5.4"
 
 [dev-packages]
 pylint = "*"

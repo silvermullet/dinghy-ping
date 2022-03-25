@@ -84,7 +84,10 @@ Dinghy Ping Host name used for web socket connection to collect logs
 MY_APP_NAME = os.getenv("MY_APP_NAME", default="dinghy-ping")
 MY_CLUSTER_DOMAIN = os.getenv("MY_CLUSTER_DOMAIN", default="localhost")
 
-dinghy_ping_host = f"{MY_APP_NAME}.{MY_CLUSTER_DOMAIN}"
+if MY_CLUSTER_DOMAIN == "localhost":
+    dinghy_ping_host = "localhost" 
+else:
+    dinghy_ping_host = f"{MY_APP_NAME}.{MY_CLUSTER_DOMAIN}"
 
 """
 AWS Region name, defaults to us-west-2
