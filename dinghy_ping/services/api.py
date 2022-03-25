@@ -85,9 +85,10 @@ MY_APP_NAME = os.getenv("MY_APP_NAME", default="dinghy-ping")
 MY_CLUSTER_DOMAIN = os.getenv("MY_CLUSTER_DOMAIN", default="localhost")
 
 if MY_CLUSTER_DOMAIN == "localhost":
-    dinghy_ping_host = "localhost" 
+    # building ws host for localhost Tilt development over http
+    dinghy_ping_web_socket_host = "ws://localhost:8080"
 else:
-    dinghy_ping_host = f"{MY_APP_NAME}.{MY_CLUSTER_DOMAIN}"
+    dinghy_ping_web_socket_host = f"wss://{MY_APP_NAME}.{MY_CLUSTER_DOMAIN}"
 
 """
 AWS Region name, defaults to us-west-2
@@ -493,7 +494,7 @@ async def form_input_pod_logs_stream(
         'pod_logs_output_streaming.html',
         namespace=namespace,
         name=pod,
-        dinghy_ping_host=dinghy_ping_host
+        dinghy_ping_web_socket_host=dinghy_ping_web_socket_host
     )
 
 
@@ -512,7 +513,7 @@ async def namespace_event_stream(
         'events_output_streaming.html',
         namespace=namespace,
         filter=filter,
-        dinghy_ping_host=dinghy_ping_host
+        dinghy_ping_web_socket_host=dinghy_ping_web_socket_host
     )
 
 
