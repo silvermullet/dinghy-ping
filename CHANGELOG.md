@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v0.5.2 (2022-03-24)
+- [Zane]
+  - fixing websocket support to work with Tilt localhost development 
+
 ## v0.5.1 (2022-03-24)
 - [Zane]
   - pyyaml version bump fix security issue
