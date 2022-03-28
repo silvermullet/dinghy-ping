@@ -52,3 +52,66 @@ roleRef:
   kind: ClusterRole
   name: dinghy-pod-reader
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: dinghy-ping-redis
+  labels:
+    app: dinghy-ping-redis
+spec:
+  serviceName: dinghy-ping-redis 
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dinghy-ping-redis
+  template:
+    metadata:
+      labels:
+        app: dinghy-ping-redis
+    spec:
+      containers:
+      - name: dinghy-ping-redis
+        image:  redislabs/rejson:latest
+        imagePullPolicy: Always
+        args: ["--appendonly", "yes", "--save", "30", "1", "--loadmodule", "/usr/lib/redis/modules/rejson.so"]
+        ports:
+        - containerPort: 6379
+          name: redis-json
+        volumeMounts:
+        - name: redis-volume-dinghy-ping
+          mountPath: /data
+        livenessProbe:
+          tcpSocket:
+            port: 6379 
+          initialDelaySeconds: 3
+          periodSeconds: 10
+        readinessProbe:
+          tcpSocket:
+            port: 6379 
+          initialDelaySeconds: 3
+          periodSeconds: 10
+  volumeClaimTemplates:
+  - metadata:
+      name: redis-volume-dinghy-ping
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 2Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dinghy-ping-redis
+  labels:
+    app: dinghy-ping-redis
+spec:
+  type: ClusterIP 
+  ports:
+    - port: 6379 
+      targetPort: 6379
+      protocol: TCP
+      name: redis
+  selector:
+    app: dinghy-ping-redis

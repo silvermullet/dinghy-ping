@@ -6,49 +6,50 @@ import json
 import logging
 import os
 import sys
-import responder
 import traceback
+from flask_sock import Sock
 from urllib.parse import urlparse
-from kubernetes_asyncio import client, config, watch
-from kubernetes_asyncio.client.rest import ApiException
+from flask import Flask, render_template, request, jsonify, make_response
+from kubernetes import client, config, watch
+from kubernetes.client.rest import ApiException
 from dinghy_ping.models.data import DinghyData
 from dinghy_ping.models import dinghy_dns
-from ddtrace import tracer
-
-# http://pypi.datadoghq.com/trace/docs/other_integrations.html#requests
-from ddtrace import patch
-patch(requests=True)
+# from ddtrace import tracer
+#  http://pypi.datadoghq.com/trace/docs/other_integrations.html#requests
+# from ddtrace import patch
+# patch(requests=True)
 import requests # noqa
 
 logging.basicConfig(level=logging.DEBUG)
 
-TAIL_LINES_DEFAULT = 100
-LOGS_PREVIEW_LENGTH = 1000
-TEMPLATE_DIR = 'dinghy_ping/views/templates/'
-STATIC_DIR = 'dinghy_ping/views/static/'
+TAIL_LINES_DEFAULT = '100'
+LOGS_PREVIEW_LENGTH = '1000'
+TEMPLATE_DIR = '../views/templates/'
+STATIC_DIR = '../views/static/'
 
 environment = os.getenv("ENVIRONMENT", "none")
 dd_tags = [f"environment={environment}"]
 
 
-def initialize_datadog():
-    dd_host = os.getenv('DD_AGENT_HOST', 'host.docker.internal')
-    dd_statsd_port = os.getenv('DD_DOGSTATSD_PORT', '8125')
-    dd_trace_agent_hostname = os.getenv(
-        'DD_TRACE_AGENT_HOSTNAME', 'host.docker.internal')
-    dd_trace_agent_port = os.getenv('DD_TRACE_AGENT_PORT', '8126')
-
-    datadog_options = {
-        'statsd_host': dd_host,
-        'statsd_port': dd_statsd_port
-    }
-
-    datadog.initialize(**datadog_options)
-
-    tracer.configure(
-        hostname=dd_trace_agent_hostname,
-        port=dd_trace_agent_port,
-    )
+# def initialize_datadog():
+#    dd_host = os.getenv('DD_AGENT_HOST', 'host.docker.internal')
+#    dd_statsd_port = os.getenv('DD_DOGSTATSD_PORT', '8125')
+#    dd_trace_agent_hostname = os.getenv(
+#        'DD_TRACE_AGENT_HOSTNAME', 'host.docker.internal')
+#    dd_trace_agent_port = os.getenv('DD_TRACE_AGENT_PORT', '8126')
+#
+#    datadog_options = {
+#        'statsd_host': dd_host,
+#        'statsd_port': dd_statsd_port
+#    }
+#
+#    datadog.initialize(**datadog_options)
+#
+#    tracer.configure(
+#        enabled = False,
+#        hostname=dd_trace_agent_hostname,
+#        port=dd_trace_agent_port,
+#    )
 
 
 def default(o):
@@ -62,21 +63,20 @@ def to_pretty_json(value):
                       default=default)
 
 
-api = responder.API(
-    title="Dinghy Ping",
-    templates_dir=TEMPLATE_DIR,
-    static_dir=STATIC_DIR,
-    version="1.0",
-    openapi="3.0.0",
-    docs_route="/docs"
+api = Flask(
+    __name__,
+    template_folder=TEMPLATE_DIR,
+    static_folder=STATIC_DIR,
     )
 
 api.jinja_env.filters['tojson_pretty'] = to_pretty_json
+sock = Sock(api)
+config.load_incluster_config()
 
 """
 For local mac docker image creation and testing, switch to host.docker.internal
 """
-redis_host = os.getenv("REDIS_HOST", default="127.0.0.1")
+redis_host = os.getenv("REDIS_HOST", default="dinghy-ping-redis.default.svc.cluster.local")
 
 """
 Dinghy Ping Host name used for web socket connection to collect logs
@@ -97,32 +97,36 @@ region_name = os.getenv("AWS_DEFAULT_REGION", default='us-west-2')
 
 
 @api.route("/health")
-def dinghy_health(req, resp):
+def dinghy_health():
     """Health check index page"""
-    resp.text = "Ok"
+    response = make_response("Ok", 200)
+    return response
 
 
 @api.route("/history")
-def dinghy_history(req, resp):
+def dinghy_history():
     """Return list of pinged history"""
-    resp.media = {
+    data = {
         "history": _get_all_pinged_urls()
     }
+    response = make_response(jsonify(data), 200)
+    return response
 
 
 @api.route("/")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_home_page_load_time.timer', tags=dd_tags)
-def dinghy_html(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_home_page_load_time.timer', tags=dd_tags)
+def dinghy_html():
     """Index route to Dinghy-ping input html form"""
-    resp.content = api.template(
+    result = render_template(
         'index.html',
         get_all_pinged_urls=_get_all_pinged_urls()
     )
+    return result
 
 
 @api.route("/ping/domains")
-async def ping_multiple_domains(req, resp):
+def ping_multiple_domains():
     """
     Async process to test multiple domains and return JSON with results
     Post request data example
@@ -164,7 +168,7 @@ async def ping_multiple_domains(req, resp):
 
     def build_domain_results(protocol, request_domain, results, headers):
         response_code, response_text, response_time_ms, response_headers = (
-            _process_request(protocol, request_domain, req.params, headers)
+            _process_request(protocol, request_domain, request.args, headers)
         )
         results.append({
             "protocol": protocol,
@@ -181,14 +185,16 @@ async def ping_multiple_domains(req, resp):
             headers = domain['headers']
             build_domain_results(protocol, request_domain, results, headers)
 
-    resp.media = {
+    resp = {
         "domains_response_results": results,
-        "wait": gather_results(await req.media())
+        "wait": gather_results(request.data)
         }
+
+    return jsonify(resp)
 
 
 @api.route("/ping/{protocol}/{domain}")
-def domain_response_html(req, resp, *, protocol, domain):
+def domain_response_html(*, protocol, domain):
     """
     API endpoint for sending a request to a domain via user specified protocol
     response containts status_code, body text and response_time_ms
@@ -196,10 +202,10 @@ def domain_response_html(req, resp, *, protocol, domain):
 
     headers = {}
     response_code, response_text, response_time_ms, response_headers = (
-        _process_request(protocol, domain, req.params, headers)
+        _process_request(protocol, domain, request.args, headers)
     )
 
-    resp.content = api.template(
+    resp = render_template(
             'ping_response.html',
             domain=domain,
             domain_response_code=response_code,
@@ -208,13 +214,16 @@ def domain_response_html(req, resp, *, protocol, domain):
             domain_response_time_ms=response_time_ms
     )
 
+    return resp
+
 
 @api.route("/form-input")
-def form_input(req, resp):
+def form_input():
     """Dinghy-ping html input form for http connection"""
-    url = urlparse(req.params['url'])
-    if 'headers' in req.params.keys():
-        headers = json.loads(req.params['headers'])
+    url = urlparse(request.args['url'])
+    if request.args['headers']:
+        print(f"here: {request.args['headers']}")
+        headers = json.loads(request.args['headers'])
     else:
         headers = {}
     if url.scheme == "":
@@ -226,9 +235,9 @@ def form_input(req, resp):
         _process_request(url.scheme, url.netloc + url.path, url.query, headers)
     )
 
-    resp.content = api.template(
+    resp = render_template(
             'ping_response.html',
-            request=f'{req.params["url"]}',
+            request=f'{request.args["url"]}',
             scheme_notes=scheme_notes,
             domain_response_code=response_code,
             domain_response_text=response_text,
@@ -236,15 +245,17 @@ def form_input(req, resp):
             domain_response_time_ms=response_time_ms
     )
 
+    return resp
+
 
 @api.route("/form-input-tcp-connection-test")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_tcp_response.timer', tags=dd_tags)
-async def form_input_tcp_connection_test(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_tcp_response.timer', tags=dd_tags)
+async def form_input_tcp_connection_test():
     """Form input endpoint for tcp connection test"""
     logging.basicConfig(level=logging.DEBUG)
-    tcp_endpoint = req.params['tcp-endpoint']
-    tcp_port = req.params['tcp-port']
+    tcp_endpoint = request.args['tcp-endpoint']
+    tcp_port = request.args['tcp-port']
 
     try:
         reader, writer = await asyncio.open_connection(
@@ -258,7 +269,7 @@ async def form_input_tcp_connection_test(req, resp):
             request_url=f'{tcp_endpoint}:{tcp_port}'
         )
         d.save_ping()
-        resp.content = api.template(
+        resp = render_template(
             'ping_response_tcp_conn.html',
             request=tcp_endpoint,
             port=tcp_port,
@@ -267,29 +278,33 @@ async def form_input_tcp_connection_test(req, resp):
     except (asyncio.TimeoutError, ConnectionRefusedError):
         print("Network port not responding")
         conn_info = f'Failed to connect to {tcp_endpoint} on port {tcp_port}'
-        resp.status_code = api.status_codes.HTTP_402
-        resp.content = api.template(
+        resp.status_code = make_response(
+            "error connecting to network port", 402
+        )
+        resp = render_template(
             'ping_response_tcp_conn.html',
             request=tcp_endpoint,
             port=tcp_port,
             connection_results=conn_info
         )
 
+    return resp
+
 
 @api.route("/form-input-dns-info")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_dns_response.timer', tags=dd_tags)
-async def form_input_dns_info(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_dns_response.timer', tags=dd_tags
+def form_input_dns_info():
     """Form input endpoint for dns info"""
-    domain = req.params['domain']
+    domain = request.args['domain']
 
-    nameserver = req.params.get('nameserver')
+    nameserver = request.args.get('nameserver')
 
     dns_info_A = _gather_dns_A_info(domain, nameserver)
     dns_info_NS = _gather_dns_NS_info(domain, nameserver)
     dns_info_MX = _gather_dns_MX_info(domain, nameserver)
 
-    resp.content = api.template(
+    resp = render_template(
             'dns_info.html',
             domain=domain,
             dns_info_A=dns_info_A,
@@ -297,21 +312,23 @@ async def form_input_dns_info(req, resp):
             dns_info_MX=dns_info_MX
     )
 
+    return resp
+
 
 @api.route("/get/deployment-details")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_deployment_details.timer',
-        tags=dd_tags)
-async def dinghy_get_deployment_details(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_deployment_details.timer',
+#        tags=dd_tags)
+def dinghy_get_deployment_details():
     """List deployments on the cluster"""
-    namespace = req.params.get('namespace', 'default')
-    tail_lines = req.params.get('tail_lines', TAIL_LINES_DEFAULT)
-    name = req.params.get('name')
+    namespace = request.args.get('namespace', 'default')
+    tail_lines = request.args.get('tail_lines', TAIL_LINES_DEFAULT)
+    name = request.args.get('name')
     k8s_client = client.AppsV1Api()
-    deployment = await k8s_client.read_namespaced_deployment(name, namespace)
+    deployment = k8s_client.read_namespaced_deployment(name, namespace)
 
     # Find replica set
-    replica_set_result = await k8s_client.list_namespaced_replica_set(
+    replica_set_result = k8s_client.list_namespaced_replica_set(
         namespace)
 
     all_pods = {}
@@ -329,7 +346,7 @@ async def dinghy_get_deployment_details(req, resp):
             replica_sets.append(rs)
 
     try:
-        pod_list = await client.CoreV1Api().list_namespaced_pod(
+        pod_list = client.CoreV1Api().list_namespaced_pod(
             namespace,
             watch=False)
         for pod in pod_list.items:
@@ -340,26 +357,28 @@ async def dinghy_get_deployment_details(req, resp):
     except Exception:
         logging.exception('List pods error')
 
-    resp.content = api.template(
+    resp = render_template(
         'deployment_describe_output.html',
         deployment=deployment,
         all_pods=all_pods,
         tail_lines=tail_lines
     )
 
+    return resp
+
 
 @api.route("/get/deployments")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_deployment_list.timer',
-        tags=dd_tags)
-async def dinghy_get_deployments(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_deployment_list.timer',
+#        tags=dd_tags)
+def dinghy_get_deployments():
     """List deployments on the cluster"""
-    namespace = req.params.get('namespace')
-    workloads_only = bool(req.params.get('workloads', False))
-    name_filter = req.params.get('filter')
+    namespace = request.args.get('namespace')
+    workloads_only = bool(request.args.get('workloads', False))
+    name_filter = request.args.get('filter')
 
     if namespace is None:
-        namespaces = await _get_all_namespaces()
+        namespaces = _get_all_namespaces()
     else:
         namespaces = [namespace]
 
@@ -367,7 +386,7 @@ async def dinghy_get_deployments(req, resp):
     k8s_client = client.AppsV1Api()
 
     for namespace in namespaces:
-        ret = await k8s_client.list_namespaced_deployment(
+        ret = k8s_client.list_namespaced_deployment(
             namespace)
         for i in ret.items:
             deployment = i.metadata.name
@@ -384,67 +403,74 @@ async def dinghy_get_deployments(req, resp):
                                 'date': i.metadata.creation_timestamp,
                                 'status': i.status})
 
-    resp.content = api.template(
+    resp = render_template(
         'deployments_tabbed.html',
         deployments=deployments
     )
 
+    return resp
+
 
 @api.route("/list-pods")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_get_pod_list.timer',
-        tags=dd_tags)
-async def list_pods(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_get_pod_list.timer',
+#        tags=dd_tags)
+def list_pods():
     """Route to list pods"""
-    namespace = req.params['namespace']
+    namespace = request.args['namespace']
     ret = []
 
     try:
-        ret = await _get_all_pods(namespace)
+        ret = _get_all_pods(namespace)
     except Exception:
         traceback.print_exc(file=sys.stdout)
 
-    resp.media = {"pods": ret}
+    resp = jsonify({"pods": ret})
+
+    return resp
 
 
 @api.route("/get/pods")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_list_pod_list.timer', tags=dd_tags)
-async def dinghy_get_pods(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_list_pod_list.timer', tags=dd_tags)
+def dinghy_get_pods():
     """Form input page for pod logs and describe, input namespace"""
 
-    resp.content = api.template(
+    resp = render_template(
         'pods_tabbed.html',
-        namespaces=await _get_all_namespaces()
+        namespaces=_get_all_namespaces()
     )
+
+    return resp
 
 
 @api.route("/get/events")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_namespace_event_page.timer',
-        tags=dd_tags)
-async def dinghy_get_namespace_events(req, resp):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_namespace_event_page.timer',
+#        tags=dd_tags)
+def dinghy_get_namespace_events():
     """Render landing page to select namespace for event stream"""
 
-    all_namespaces = await _get_all_namespaces()
+    all_namespaces = _get_all_namespaces()
 
-    resp.content = api.template(
+    resp = render_template(
         'events_tabbed.html',
         namespaces=all_namespaces
     )
 
+    return resp
+
 
 @api.route("/get/pod-details")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_pod_details.timer', tags=dd_tags)
-async def dinghy_get_pod_details(
-        req, resp, namespace="default", tail_lines=TAIL_LINES_DEFAULT):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_render_pod_details.timer', tags=dd_tags)
+def dinghy_get_pod_details():
     """Landing page for Dinghy-ping pod logs input html form"""
-    namespace = req.params.get('namespace')
-    tail_lines = req.params.get('tail_lines', tail_lines)
-    name_filter = req.params.get('filter')
+    namespace = request.args.get('namespace', default="default")
+    tail_lines = request.args.get('tail_lines', default=TAIL_LINES_DEFAULT)
+    name_filter = request.args.get('filter')
     pods = {}
-    all_pods = await _get_all_pods(namespace=namespace)
+    all_pods = _get_all_pods(namespace=namespace)
     if name_filter is not None:
         for pod, namespace in all_pods.items():
             if name_filter in pod:
@@ -452,82 +478,88 @@ async def dinghy_get_pod_details(
     else:
         pods = all_pods
 
-    resp.content = api.template(
+    resp = render_template(
         'pod_logs_input.html',
         all_pods=pods,
         tail_lines=tail_lines
     )
 
+    return resp
+
 
 @api.route("/input-pod-logs")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_display_pod_logs.timer', tags=dd_tags)
-async def form_input_pod_logs(req, resp, *, tail_lines=TAIL_LINES_DEFAULT):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_display_pod_logs.timer', tags=dd_tags)
+def form_input_pod_logs():
     """List pods in namespace and click on one to display logs"""
-    pod = req.params.get('pod')
-    namespace = req.params.get('namespace', 'default')
-    tail_lines = req.params.get('tail_lines', tail_lines)
+    pod = request.args.get('pod')
+    namespace = request.args.get('namespace', 'default')
+    tail_lines = request.args.get('tail_lines', TAIL_LINES_DEFAULT)
 
     logging.debug(f"Retrieving pod logs... {pod} in namespace {namespace}")
 
     try:
-        ret = await _get_pod_logs(pod, namespace, tail_lines)
-        resp.content = api.template(
+        ret = _get_pod_logs(pod, namespace, tail_lines)
+        resp = render_template(
             'pod_logs_output.html',
             logs=ret
         )
+
+        return resp
     except Exception:
         traceback.print_exc(file=sys.stdout)
 
 
 @api.route("/input-pod-logs-stream")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_display_pod_logs_stream.timer',
-        tags=dd_tags)
-async def form_input_pod_logs_stream(
-        req, resp, *, tail_lines=TAIL_LINES_DEFAULT):
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_display_pod_logs_stream.timer',
+#        tags=dd_tags)
+def form_input_pod_logs_stream(
+        *, tail_lines=TAIL_LINES_DEFAULT):
     """List pods in namespace and click on one to display logs"""
-    pod = req.params['pod']
-    namespace = req.params['namespace']
+    pod = request.args['pod']
+    namespace = request.args['namespace']
 
-    resp.content = api.template(
+    resp = render_template(
         'pod_logs_output_streaming.html',
         namespace=namespace,
         name=pod,
         dinghy_ping_web_socket_host=dinghy_ping_web_socket_host
     )
 
+    return resp
 
-@api.route("/event-stream/{namespace}/{filter}")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_display_namespace_events_stream.timer',
-        tags=dd_tags)
-async def namespace_event_stream(
-        req, resp, *, namespace, filter):
+
+@api.route("/event-stream/<namespace>/<filter>")
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_display_namespace_events_stream.timer',
+#        tags=dd_tags)
+def namespace_event_stream(namespace, filter):
     """Render page with streaming events in namespace,
     default to just Pod events, optional all events"""
 
     logging.info(f'filter: {filter}')
 
-    resp.content = api.template(
+    resp = render_template(
         'events_output_streaming.html',
         namespace=namespace,
         filter=filter,
         dinghy_ping_web_socket_host=dinghy_ping_web_socket_host
     )
 
+    return resp
 
-@api.route("/ws/logstream", websocket=True)
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_web_socket_duration.timer', tags=dd_tags)
-async def log_stream_websocket(ws):
+
+@sock.route("/ws/logstream")
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_web_socket_duration.timer', tags=dd_tags)
+def log_stream_websocket(ws):
     k8s_client = client.CoreV1Api()
 
-    name = ws.query_params['name']
-    namespace = ws.query_params['namespace']
+    name = request.args['name']
+    namespace = request.args['namespace']
 
-    await ws.accept()
-    resp = await k8s_client.read_namespaced_pod_log(
+    resp = k8s_client.read_namespaced_pod_log(
         name,
         namespace,
         tail_lines=TAIL_LINES_DEFAULT,
@@ -535,7 +567,7 @@ async def log_stream_websocket(ws):
         )
     while True:
         try:
-            line = await resp.content.readline()
+            line = resp.readline()
         except asyncio.TimeoutError as e:
             logging.error(
                 f"""
@@ -544,18 +576,17 @@ async def log_stream_websocket(ws):
             break
         if not line:
             break
-        await ws.send_text(line.decode('utf-8'))
+        ws.send(line.decode('utf-8'))
 
-    await ws.close()
+    ws.close()
 
 
-@api.route("/ws/event-stream", websocket=True)
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_web_socket_duration.timer', tags=dd_tags)
-async def event_stream_websocket(ws):
-    await ws.accept()
-    namespace = ws.query_params['namespace']
-    filter = ws.query_params['filter']
+@sock.route("/ws/event-stream")
+# @datadog.statsd.timed(
+#        metric='dinghy_ping_events_web_socket_duration.timer', tags=dd_tags)
+def event_stream_websocket(ws):
+    namespace = request.args['namespace']
+    filter = request.args['filter']
 
     if filter == 'all':
         field_selector = ""
@@ -568,7 +599,7 @@ async def event_stream_websocket(ws):
     v1 = client.CoreV1Api()
     w = watch.Watch()
 
-    async for event in w.stream(
+    for event in w.stream(
             v1.list_namespaced_event,
             namespace,
             field_selector=field_selector):
@@ -578,24 +609,23 @@ async def event_stream_websocket(ws):
                 Message=obj.message)
 
         event_resp_json_dump = json.dumps(event_resp, default=default)
-        # await ws.send_text(f"{obj.metadata.name}: {obj.message}")
-        await ws.send_text(event_resp_json_dump)
+        ws.send(event_resp_json_dump)
 
     w.stop()
     ws.close()
 
 
 @api.route("/pod-describe")
-@datadog.statsd.timed(
-        metric='dinghy_ping_events_render_pod_description.timer', tags=dd_tags)
-async def dinghy_pod_describe(req, resp):
+# @datadog.statsd.timed(
+# metric='dinghy_ping_events_render_pod_description.timer', tags=dd_tags)
+def dinghy_pod_describe():
     """Describe given pod and display response"""
-    pod = req.params['pod']
-    namespace = req.params['namespace']
-    described = await _describe_pod(pod, namespace)
-    events = await _get_pod_events(pod, namespace)
+    pod = request.args['pod']
+    namespace = request.args['namespace']
+    described = _describe_pod(pod, namespace)
+    events = _get_pod_events(pod, namespace)
 
-    resp.content = api.template(
+    resp = render_template(
         'pod_describe_output.html',
         described=described,
         pod=pod,
@@ -603,47 +633,53 @@ async def dinghy_pod_describe(req, resp):
         events=events
     )
 
+    return resp
+
 
 @api.route("/api/pod-events/{namespace}/{pod}")
-async def dinghy_pod_events(req, resp, *, namespace, pod):
+def dinghy_pod_events(*, namespace, pod):
     """Return pod events"""
-    events = await _get_pod_events(pod, namespace)
+    events = _get_pod_events(pod, namespace)
     # Normalize events, ie serialize datetime
     events_normalized = json.dumps(events, default=default)
 
-    resp.media = json.loads(events_normalized)
+    resp = jsonify(events_normalized)
+
+    return resp
 
 
 @api.route("/deployment-logs/{namespace}/{name}")
-async def dinghy_deployment_logs(
-                            req, resp, *,
+def dinghy_deployment_logs(
+                            *,
                             namespace, name,
                             tail_lines=TAIL_LINES_DEFAULT,
                             preview=LOGS_PREVIEW_LENGTH):
     """Get pod logs for a given deployment"""
-    tail_lines = req.params.get('tail_lines', tail_lines)
-    logs = await _get_deployment_logs(namespace, name, tail_lines)
+    tail_lines = request.args.get('tail_lines', tail_lines)
+    logs = _get_deployment_logs(namespace, name, tail_lines)
     logs_preview = logs[0:preview]
 
-    if 'json' in req.params.keys():
-        if 'preview' in req.params.keys():
-            resp.media = {"logs": logs_preview}
+    if 'json' in request.args.keys():
+        if 'preview' in request.args.keys():
+            resp = jsonify({"logs": logs_preview})
         else:
-            resp.media = {"logs": logs}
+            resp = jsonify({"logs": logs})
     else:
-        resp.content = api.template(
+        resp = render_template(
             'pod_logs_output.html',
             logs=logs
         )
 
+    return resp
 
-async def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
+
+def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
     """Gather pod names via K8s label selector"""
     pods = []
     k8s_client = client.CoreV1Api()
 
     try:
-        api_response = await k8s_client.list_namespaced_pod(
+        api_response = k8s_client.list_namespaced_pod(
             namespace, label_selector='release={}'.format(name))
         for api_items in api_response.items:
             pods.append(api_items.metadata.name)
@@ -656,7 +692,7 @@ async def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
     try:
         for pod in pods:
             logs += pod + "\n"
-            logs += await k8s_client.read_namespaced_pod_log(
+            logs += k8s_client.read_namespaced_pod_log(
                 pod, namespace, tail_lines=tail_lines)
     except ApiException as e:
         logging.error(
@@ -665,26 +701,26 @@ async def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
     return logs
 
 
-async def _get_pod_logs(pod, namespace, tail_lines=TAIL_LINES_DEFAULT):
+def _get_pod_logs(pod, namespace, tail_lines=TAIL_LINES_DEFAULT):
     """Read pod logs"""
     k8s_client = client.CoreV1Api()
     ret = []
     try:
-        ret = await k8s_client.read_namespaced_pod_log(
-            pod, namespace, tail_lines=tail_lines)
+        ret = k8s_client.read_namespaced_pod_log(
+            pod, namespace, tail_lines=TAIL_LINES_DEFAULT)
     except ApiException as e:
         logging.error(
-            f"Exception when calling CoreV1Api->read_namespaced_pod: {e}")
+            f"Exception when calling CoreV1Api->read_namespaced_pod_log: {e}")
 
     return ret
 
 
-async def _describe_pod(pod, namespace):
+def _describe_pod(pod, namespace):
     """Describes pod"""
     k8s_client = client.CoreV1Api()
 
     try:
-        ret = await k8s_client.read_namespaced_pod(
+        ret = k8s_client.read_namespaced_pod(
             pod, namespace, pretty='true')
     except ApiException as e:
         logging.exception(
@@ -693,13 +729,13 @@ async def _describe_pod(pod, namespace):
     return ret
 
 
-async def _get_pod_events(pod, namespace):
+def _get_pod_events(pod, namespace):
     """Get pod events"""
     k8s_client = client.CoreV1Api()
     events = {}
 
     try:
-        ret_events = await k8s_client.list_namespaced_event(
+        ret_events = k8s_client.list_namespaced_event(
             field_selector=f"involvedObject.name={pod}",
             namespace=namespace)
     except ApiException as e:
@@ -718,27 +754,27 @@ async def _get_pod_events(pod, namespace):
     return events
 
 
-async def _get_all_namespaces():
+def _get_all_namespaces():
     """Get all namespaces"""
     k8s_client = client.CoreV1Api()
     namespaces = []
 
-    ret = await k8s_client.list_namespace(watch=False)
+    ret = k8s_client.list_namespace(watch=False)
     for i in ret.items:
         namespaces.append(i.metadata.name)
 
     return namespaces
 
 
-async def _get_all_pods(namespace=None):
+def _get_all_pods(namespace=None):
     """Get all pods"""
     pods = {}
     k8s_client = client.CoreV1Api()
 
     if namespace:
-        ret = await k8s_client.list_namespaced_pod(namespace, watch=False)
+        ret = k8s_client.list_namespaced_pod(namespace, watch=False)
     else:
-        ret = await k8s_client.list_pod_for_all_namespaces(watch=False)
+        ret = k8s_client.list_pod_for_all_namespaces(watch=False)
 
     for i in ret.items:
         pod = i.metadata.name
@@ -836,13 +872,13 @@ def _process_request(protocol, domain, params, headers):
 def _get_all_pinged_urls():
     """Get pinged URLs from Dinghy-ping data module"""
     p = DinghyData(redis_host)
-
     return p.get_all_pinged_urls()
 
 
 if __name__ == '__main__':
-    initialize_datadog()
+    # initialize_datadog()
     config.load_incluster_config()
+    sock = Sock(api)
     port = int(os.environ.get("DINGHY_LISTEN_PORT", 80))
     debug = os.environ.get("DEBUG", True)
-    api.run(address="0.0.0.0", port=port, debug=debug)
+    api.run(host="0.0.0.0", port=port, debug=debug)
