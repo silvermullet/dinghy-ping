@@ -1,8 +1,10 @@
 from __future__ import print_function
+
 import time
+from pprint import pprint
+
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
-from pprint import pprint
 
 config.load_kube_config()
 k8s_client = client.CoreV1Api()
