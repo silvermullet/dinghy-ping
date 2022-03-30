@@ -875,10 +875,3 @@ def _get_all_pinged_urls():
     """Get pinged URLs from Dinghy-ping data module"""
     p = DinghyData(redis_host)
     return p.get_all_pinged_urls()
-
-    initialize_datadog()
-    config.load_incluster_config()
-    sock = Sock(api)
-    port = int(os.environ.get("DINGHY_LISTEN_PORT", 8080))
-    debug = os.environ.get("DEBUG", True)
-    api.run(host="0.0.0.0", port=port, debug=debug)
