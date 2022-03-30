@@ -8,7 +8,7 @@ from kubernetes.client.rest import ApiException
 
 config.load_kube_config()
 k8s_client = client.CoreV1Api()
-pretty = 'true' # str | If 'true', then the output is pretty printed. (optional)
+pretty = "true"  # str | If 'true', then the output is pretty printed. (optional)
 
 """
 {'api_version': 'v1',
