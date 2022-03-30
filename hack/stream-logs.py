@@ -1,8 +1,5 @@
 from __future__ import print_function
 
-import time
-from pprint import pprint
-
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 
@@ -26,7 +23,7 @@ pretty = "true"  # str | If 'true', then the output is pretty printed. (optional
                          'labels': None,
                          'managed_fields': None,
                          'name': 'app',
-"""
+"""  # noqa
 
 try:
     api_response = k8s_client.list_namespace(pretty=pretty, watch=False)
