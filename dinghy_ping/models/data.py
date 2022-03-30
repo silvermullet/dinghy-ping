@@ -7,9 +7,14 @@ class DinghyData:
     The Dinghy Ping Redis data interface,
     requires https://oss.redislabs.com/rejson/ ReJSON Redis module
     """
+
     def __init__(
-            self, redis_host, domain_response_code=None,
-            domain_response_time_ms=None, request_url=None):
+        self,
+        redis_host,
+        domain_response_code=None,
+        domain_response_time_ms=None,
+        request_url=None,
+    ):
         self.redis_host = redis_host
         self.domain_response_code = domain_response_code
         self.domain_response_time_ms = domain_response_time_ms
@@ -20,18 +25,18 @@ class DinghyData:
         r = redis.StrictRedis(host=self.redis_host)
         try:
             r.execute_command(
-                'JSON.SET',
-                f'url:{self.request_url}',
-                '.',
+                "JSON.SET",
+                f"url:{self.request_url}",
+                ".",
                 json.dumps(
                     {
                         "response_time_ms": self.domain_response_time_ms,
-                        "response_code": self.domain_response_code
+                        "response_code": self.domain_response_code,
                     }
-                )
+                ),
             )
         except redis.exceptions.ConnectionError as err:
-            print(f'Connection Error to Redis: {err}')
+            print(f"Connection Error to Redis: {err}")
         except redis.exceptions.ResponseError as err:
             print(f"Redis ResponseError: {err}")
 
@@ -39,8 +44,7 @@ class DinghyData:
         """Get ping results for request_url object"""
         r = redis.StrictRedis(host=self.redis_host)
         try:
-            results = json.loads(
-                r.execute_command('JSON.GET', self.request_url))
+            results = json.loads(r.execute_command("JSON.GET", self.request_url))
         except results.ResponseError as err:
             print(f"ResponseError: {err}")
 
@@ -53,16 +57,16 @@ class DinghyData:
 
         try:
             for key in r.scan_iter("url:*"):
-                value = json.loads(r.execute_command('JSON.GET', key))
+                value = json.loads(r.execute_command("JSON.GET", key))
                 if value["response_code"] and value["response_time_ms"]:
-                    results[key.decode('utf-8').strip('url:')] = (
-                        f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms' # noqa
-                    )
+                    results[
+                        key.decode("utf-8").strip("url:")
+                    ] = f'code: {value["response_code"]} response time: {value["response_time_ms"]}ms'  # noqa
                 else:
-                    results[key.decode('utf-8').strip('url:')] = ''
+                    results[key.decode("utf-8").strip("url:")] = ""
 
         except redis.exceptions.ConnectionError as err:
-            print(f'Connection Error to Redis: {err}')
+            print(f"Connection Error to Redis: {err}")
         except redis.exceptions.ResponseError as err:
             print(f"Redis ResponseError: {err}")
 

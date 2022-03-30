@@ -19,6 +19,8 @@ spec:
           env:
             - name: DINGHY_LISTEN_PORT
               value: "8080"
+            - name: DD_DOGSTATSD_DISABLE
+              value: "True"
           ports:
             - containerPort: 8080
 ---

@@ -9,8 +9,8 @@ class DinghyDNS:
     """
     The Dinghy Ping DNS info interface. Will query the localhost at 127.0.0.1
     """
-    def __init__(
-            self, domain=None, rdata_type=dns.rdatatype.A, nameserver=None):
+
+    def __init__(self, domain=None, rdata_type=dns.rdatatype.A, nameserver=None):
         self.domain = domain
         self.rdata_type = rdata_type
         self.nameserver = nameserver
