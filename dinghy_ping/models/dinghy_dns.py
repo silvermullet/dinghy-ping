@@ -1,5 +1,5 @@
-import dns.query
 import dns.message
+import dns.query
 import dns.rdataclass
 import dns.rdatatype
 import dns.resolver

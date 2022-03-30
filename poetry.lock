@@ -955,7 +955,7 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "5103524fcb837dc8bab7e5f7d6fab460f49386e26c3dc1b01b08e2e0bfaeb6dd"
+content-hash = "5375831352c5325d586ce6782e4736a1ec8c02fe6fe7361e25b1bded00720504"
 
 [metadata.files]
 appnope = [

@@ -1,23 +1,24 @@
 import asyncio
-import datadog
 import datetime
-import dns.rdatatype
 import json
 import logging
 import os
 import sys
 import traceback
-from flask_sock import Sock
 from urllib.parse import urlparse
-from flask import Flask, render_template, request, jsonify, make_response
-from kubernetes import client, config, watch
-from kubernetes.client.rest import ApiException
-from dinghy_ping.models.data import DinghyData
-from dinghy_ping.models import dinghy_dns
-from ddtrace import tracer
+
+import datadog
+import dns.rdatatype
 
 #  http://pypi.datadoghq.com/trace/docs/other_integrations.html#requests
-from ddtrace import patch
+from ddtrace import patch, tracer
+from flask import Flask, jsonify, make_response, render_template, request
+from flask_sock import Sock
+from kubernetes import client, config, watch
+from kubernetes.client.rest import ApiException
+
+from dinghy_ping.models import dinghy_dns
+from dinghy_ping.models.data import DinghyData
 
 patch(requests=True)
 import requests  # noqa

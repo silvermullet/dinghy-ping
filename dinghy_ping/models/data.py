@@ -1,5 +1,6 @@
-import redis
 import json
+
+import redis
 
 
 class DinghyData:
