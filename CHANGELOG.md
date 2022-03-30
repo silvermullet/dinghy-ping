@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v1.0.0 (2022-03-29)
+- [Zane]
+  - rebuild application using Flask, dropping Responder framework
+
 ## v0.5.2 (2022-03-24)
 - [Zane]
   - fixing websocket support to work with Tilt localhost development 
