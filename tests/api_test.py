@@ -2,9 +2,7 @@ import json
 import sys
 
 import pytest
-import services.api as service
-
-sys.path.insert(0, "./dinghy_ping/")
+import dinghy_ping.services.api as service
 
 with open("tests/multiple_domains.json") as f:
     multiple_domains = json.load(f)

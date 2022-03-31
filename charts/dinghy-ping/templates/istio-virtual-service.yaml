@@ -11,7 +11,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   gateways:
-  {{ toYaml . | indent 4 }}
+  {{ toYaml .Values.istioVirtualService.gateways | indent 4 }}
   hosts:
   - {{ .Release.Name }}.{{- .Values.subdomain }}
   http:

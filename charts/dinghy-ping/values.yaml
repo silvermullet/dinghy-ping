@@ -25,8 +25,7 @@ nginxIngress:
 
 istioVirtualService:
   enabled: false
-  # gateways:
-  #  - istio-gateways/private-gateway
+  gateways: []
   tls: []
   #  - secretName: chart-example-tls
   #    hosts:
