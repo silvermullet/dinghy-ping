@@ -1,14 +1,6 @@
 ### Dinghy Ping
 
-[![GitHub Super-Linter](https://github.com/silvermullet/dinghy-ping/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter)
-
-![Helm Lint and Test](https://github.com/silvermullet/dinghy-ping/actions/workflows/helm-lint-test.yml/badge.svg)
-
-![Helm Chart Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/helm-release.yml/badge.svg)
-
-![Docker Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-docker-image.yml/badge.svg)
-
-![Docker Latest](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-latest-docker-image.yml/badge.svg)
+[![GitHub Super-Linter](https://github.com/silvermullet/dinghy-ping/workflows/Lint%20Code%20Base/badge.svg)](https://github.com/marketplace/actions/super-linter) ![Helm Lint and Test](https://github.com/silvermullet/dinghy-ping/actions/workflows/helm-lint-test.yml/badge.svg) ![Helm Chart Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/helm-release.yml/badge.svg) ![Docker Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-docker-image.yml/badge.svg) ![Docker Latest](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-latest-docker-image.yml/badge.svg)
 
 ![dinghy](https://user-images.githubusercontent.com/538171/47242041-7d96d600-d3a2-11e8-8c55-a04e1249bc46.jpeg) 
 
