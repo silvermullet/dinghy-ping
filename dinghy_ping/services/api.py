@@ -6,16 +6,19 @@ import os
 import sys
 import traceback
 from urllib.parse import urlparse
+
 import datadog
 import dns.rdatatype
 from ddtrace import patch, tracer
-from dinghy_ping.models import dinghy_dns
-from dinghy_ping.models.data import DinghyData
 from flask import Flask, jsonify, make_response, render_template, request
 from flask_sock import Sock
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
 
+# isort: off
+from dinghy_ping.models import dinghy_dns
+from dinghy_ping.models.data import DinghyData
+# isort: on 
 patch(requests=True)
 import requests  # noqa
 
