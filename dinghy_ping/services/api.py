@@ -9,8 +9,6 @@ from urllib.parse import urlparse
 
 import datadog
 import dns.rdatatype
-
-#  http://pypi.datadoghq.com/trace/docs/other_integrations.html#requests
 from ddtrace import patch, tracer
 from flask import Flask, jsonify, make_response, render_template, request
 from flask_sock import Sock
