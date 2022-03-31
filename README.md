@@ -6,6 +6,9 @@
 
 ![Helm Chart Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/helm-release.yml/badge.svg)
 
+![Docker Release](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-docker-image.yml/badge.svg)
+
+![Docker Latest](https://github.com/silvermullet/dinghy-ping/actions/workflows/publish-latest-docker-image.yml/badge.svg)
 
 ![dinghy](https://user-images.githubusercontent.com/538171/47242041-7d96d600-d3a2-11e8-8c55-a04e1249bc46.jpeg) 
 
