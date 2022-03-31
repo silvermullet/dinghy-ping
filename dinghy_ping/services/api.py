@@ -15,10 +15,11 @@ from flask_sock import Sock
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
 
-# isort: off
+# isort: on
 from dinghy_ping.models import dinghy_dns
 from dinghy_ping.models.data import DinghyData
-# isort: on 
+
+# isort: off
 patch(requests=True)
 import requests  # noqa
 
