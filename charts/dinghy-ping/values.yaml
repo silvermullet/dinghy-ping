@@ -10,6 +10,9 @@ subdomain: voltron.cloud
 nameOverride: ""
 fullnameOverride: ""
 
+# Disable Datadog dogstatsd 
+disable_dogstatsd: "True"
+
 service:
   type: ClusterIP
   port: 80

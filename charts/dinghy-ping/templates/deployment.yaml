@@ -29,6 +29,8 @@ spec:
               value: {{ include "dinghy-ping.fullname" . }}-redis.{{ .Release.Namespace }}.svc.cluster.local
             - name: DINGHY_PING_HOST
               value: {{ .Release.Name }}.{{- .Values.subdomain }}
+            - name: DD_DOGSTATSD_DISABLE
+              value: {{ .Values.disable_dogstatsd }}
           ports:
             - name: http
               containerPort: 80
