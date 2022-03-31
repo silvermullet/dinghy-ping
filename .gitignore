@@ -2,3 +2,4 @@
 *.pyc
 __pycache__
 .venv/
+dinghy_ping.egg-info/

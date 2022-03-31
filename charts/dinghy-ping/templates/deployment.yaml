@@ -26,7 +26,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: REDIS_HOST
-              value: {{ include "dinghy-ping.fullname" . }}-redis
+              value: {{ include "dinghy-ping.fullname" . }}-redis.{{ .Release.Namespace }}.svc.cluster.local
             - name: DINGHY_PING_HOST
               value: {{ .Release.Name }}.{{- .Values.subdomain }}
           ports:

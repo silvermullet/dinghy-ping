@@ -1,12 +1,12 @@
 import json
-import pytest
 import sys
-sys.path.insert(0, './dinghy_ping/')
+
+import pytest
 import services.api as service
-import models.data as data
 
+sys.path.insert(0, "./dinghy_ping/")
 
-with open('tests/multiple_domains.json') as f:
+with open("tests/multiple_domains.json") as f:
     multiple_domains = json.load(f)
 
 
@@ -25,19 +25,26 @@ def test_dinghy_ping_google_http(api):
     assert r.status_code == 200
 
 
-def test_dinghy_ping_google_http(api):
-    r = api.requests.get("/form-input-tcp-connection-test?tcp-endpoint=google.com&tcp-port=443")
+def test_dinghy_ping_google_http_form(api):
+    r = api.requests.get(
+        "/form-input-tcp-connection-test?tcp-endpoint=google.com&tcp-port=443"
+    )
     assert r.status_code == 200
 
 
 def test_dinghy_ping_google_https_and_query_params(api):
-    r = api.requests.get("/ping/https/www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
+    r = api.requests.get(
+        "/ping/https/www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8"  # noqa
+    )
     assert r.status_code == 200
 
 
 def test_dinghy_ping_google_no_proto_set_and_query_params(api):
-    r = api.requests.get("/ping//www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8")
+    r = api.requests.get(
+        "/ping//www.google.com/search?source=hp&ei=aIHTW9mLNuOJ0gK8g624Ag&q=dinghy&btnK=Google+Search&oq=dinghy&gs_l=psy-ab.3..35i39l2j0i131j0i20i264j0j0i20i264j0l4.4754.5606..6143...1.0..0.585.957.6j5-1......0....1..gws-wiz.....6..0i67j0i131i20i264.oe0qJ9brs-8"  # noqa
+    )
     assert r.status_code == 200
+
 
 """
 def test_multiple_domains_request_for_google(api):
@@ -58,7 +65,8 @@ def test_multiple_domains_request_for_microsoft(api):
     assert response_json['domains_response_results'][2]['domain_response_code'] == 200
 """
 
+
 def test_ping_saved_results(api):
     api.requests.get("/ping/http/www.google.com")
     p = service._get_all_pinged_urls()
-    assert "http://www.google.com/" in p 
+    assert "http://www.google.com/" in p

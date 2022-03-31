@@ -1,12 +1,11 @@
 from __future__ import print_function
-import time
+
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
-from pprint import pprint
 
 config.load_kube_config()
 k8s_client = client.CoreV1Api()
-pretty = 'true' # str | If 'true', then the output is pretty printed. (optional)
+pretty = "true"  # str | If 'true', then the output is pretty printed. (optional)
 
 """
 {'api_version': 'v1',
@@ -24,7 +23,7 @@ pretty = 'true' # str | If 'true', then the output is pretty printed. (optional)
                          'labels': None,
                          'managed_fields': None,
                          'name': 'app',
-"""
+"""  # noqa
 
 try:
     api_response = k8s_client.list_namespace(pretty=pretty, watch=False)
