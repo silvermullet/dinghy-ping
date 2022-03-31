@@ -31,3 +31,4 @@ build-backend = "poetry.masonry.api"
 
 [tool.isort]
 profile = "black"
+skip = "dinghy_ping/services/api.py"
