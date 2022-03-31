@@ -6,8 +6,6 @@
 
 Dinghy Ping is a simple network debugging interface meant to be deployed into your compute infrastructure (ie, Kubernetes). Used for debugging network connectivity to other services local to Dinghy Ping or external to the compute infrastructure (egress). Meant to answer simple connectivity questions developers might have when deploying their applications to a container orchestration setup where routing and accessibility may be different from their local development environments.
 
-![dinghy-ping-tail-logs](https://user-images.githubusercontent.com/538171/160987693-b921d8df-947c-4828-be8c-60dcacd6854b.gif)
-
 
 <img width="906" alt="dinghy ping input" src="https://user-images.githubusercontent.com/538171/51016402-1c0b8100-1525-11e9-81f4-23bb3ef1f687.png">
 
