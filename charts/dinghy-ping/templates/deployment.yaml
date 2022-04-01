@@ -31,6 +31,8 @@ spec:
               value: {{ .Release.Name }}.{{- .Values.subdomain }}
             - name: DD_DOGSTATSD_DISABLE
               value: {{ .Values.disable_dogstatsd }}
+            - name: MY_CLUSTER_DOMAIN 
+              value: {{ .Values.subdomain }}
           ports:
             - name: http
               containerPort: 80
