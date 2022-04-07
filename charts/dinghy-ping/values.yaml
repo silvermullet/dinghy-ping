@@ -10,7 +10,7 @@ subdomain: voltron.cloud
 nameOverride: ""
 fullnameOverride: ""
 
-# Disable Datadog dogstatsd
+# Disable Datadog dogstatsd set to True or False
 disable_dogstatsd: "True"
 
 service:

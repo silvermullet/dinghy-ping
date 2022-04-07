@@ -2,7 +2,7 @@ apiVersion: v1
 appVersion: "v1.1.0"
 description: A Helm chart for dinghy-ping
 name: dinghy-ping
-version: 0.4.10
+version: 0.4.11
 icon: https://user-images.githubusercontent.com/538171/64288240-732bef00-cf16-11e9-830a-7b08759bffad.jpg
 maintainers:
   - name: sepulworld
