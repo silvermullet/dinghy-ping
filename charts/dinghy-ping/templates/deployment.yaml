@@ -30,7 +30,7 @@ spec:
             - name: DINGHY_PING_HOST
               value: {{ .Release.Name }}.{{- .Values.subdomain }}
             - name: DD_DOGSTATSD_DISABLE
-              value: {{ .Values.disable_dogstatsd }}
+              value: "{{ .Values.disable_dogstatsd }}"
             - name: MY_CLUSTER_DOMAIN 
               value: {{ .Values.subdomain }}
           ports:
