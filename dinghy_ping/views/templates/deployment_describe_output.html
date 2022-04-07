@@ -27,11 +27,21 @@
     <div class="font-bold text-base mb-2"> Available Replicas: {{ deployment.status.available_replicas }}</div>
     <div class="font-bold text-base mb-2"> Ready Replicas: {{ deployment.status.ready_replicas }}</div>
     <div class="text-base mb-2"> <a class="font-bold no-underline hover:underline" href="/get/pod-details?namespace={{ deployment.metadata.namespace}}&filter={{ deployment.metadata.name }}">Deployment PODS </a>
-      <br/>
+      <table>
       {% for pod, pod_obj in all_pods.items() %}
-       {{pod}} <a href="/input-pod-logs?namespace={{deployment.metadata.namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">logs</a> <a href="/input-pod-logs-stream?namespace={{deployment.metadata.namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">tail</a> <a href="/pod-describe?namespace={{deployment.metadata.namespace}}&pod={{pod}}"  class="no-underline hover:underline text-blue-500 text-lg"> describe</a>
-      <br/>
+      <tr>
+       {{pod}} 
+       {% for container in pod_obj.spec.containers %}
+        <td class="-mb-px mr-1">
+          <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+       <a href="/input-pod-logs?namespace={{deployment.metadata.namespace}}&pod={{pod}}&container={{container.name}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg">
+         {{container.name}}</a> <a href="/input-pod-logs-stream?namespace={{deployment.metadata.namespace}}&pod={{pod}}&container={{container.name}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg">tail</a> <a href="/pod-describe?namespace={{deployment.metadata.namespace}}&pod={{pod}}&container={{container.name}}"  class="no-underline hover:underline text-white text-lg"> describe</a>
+          </div>
+        </td>
+       {% endfor %}
       {% endfor %}
+       </tr>
+      </table>
     </div>
      <div class="font-bold text-base mb-2"> Created: {{ deployment.metadata.creation_timestamp }}</div>
     <div class="px-6 py-4 m-4 max-w-full max-h-full rounded shadow-lg border border-green-300 bg-gray-100">
