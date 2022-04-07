@@ -26,13 +26,15 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: REDIS_HOST
-              value: {{ include "dinghy-ping.fullname" . }}-redis.{{ .Release.Namespace }}.svc.cluster.local
+              value: {{ .Release.Name }}-redis.{{ .Release.Namespace }}.svc.cluster.local
             - name: DINGHY_PING_HOST
               value: {{ .Release.Name }}.{{- .Values.subdomain }}
             - name: DD_DOGSTATSD_DISABLE
               value: "{{ .Values.disable_dogstatsd }}"
             - name: MY_CLUSTER_DOMAIN 
               value: {{ .Values.subdomain }}
+            - name: MY_APP_NAME
+              value: {{ .Release.Name }} 
           ports:
             - name: http
               containerPort: 80
