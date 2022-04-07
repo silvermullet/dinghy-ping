@@ -5,10 +5,23 @@
       <div class="px-6 py-4">
         <h1 class="text-xl font-semibold hover:text-green-400"><a href="/get/pods" class="no-underline hover:underline">Dinghy Ping - Pods</a></h1>
         <br>
-            {% for pod, namespace in all_pods.items() %}
-              {{namespace}} - {{pod}} <a href="/input-pod-logs?namespace={{namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">logs</a> <a href="/input-pod-logs-stream?namespace={{namespace}}&pod={{pod}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-blue-500 text-lg">tail</a> <a href="/pod-describe?namespace={{namespace}}&pod={{pod}}"  class="no-underline hover:underline text-blue-500 text-lg"> describe</a>
+            {% for pod, data in all_pods.items() %}
+            <table>
+              {{data.namespace}} - {{pod}} 
+              <tr>
+               {% for container in data.containers %}
+                  </div>
+                <td class="-mb-px mr-1">
+                  <div class="bg-blue-500 text-white font-bold py-2 px-4 rounded">
+                  <a href="/input-pod-logs?namespace={{data.namespace}}&pod={{pod}}&container={{container}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg">
+                 {{container}}</a> <a href="/input-pod-logs-stream?namespace={{data.namespace}}&pod={{pod}}&container={{container}}&tail_lines={{tail_lines}}" class="no-underline hover:underline text-white text-lg">tail</a> <a href="/pod-describe?namespace={{data.namespace}}&pod={{pod}}"  class="no-underline hover:underline text-white text-lg"> describe</a>
+                 </div>
+                </td>
+               {% endfor %}
               <br>
             {% endfor %}
+            </tr>
+        </table>
       </div>
     </div>
 {% endblock %}

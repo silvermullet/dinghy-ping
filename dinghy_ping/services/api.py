@@ -442,8 +442,10 @@ def list_pods():
 )
 def dinghy_get_pods():
     """Form input page for pod logs and describe, input namespace"""
-
-    resp = render_template("pods_tabbed.html", namespaces=_get_all_namespaces())
+    tail_lines = int(request.args.get("tail_lines", default=TAIL_LINES_DEFAULT))
+    resp = render_template(
+        "pods_tabbed.html", tail_lines=tail_lines, namespaces=_get_all_namespaces()
+    )
 
     return resp
 
@@ -453,7 +455,7 @@ def dinghy_get_pods():
     metric="dinghy_ping_events_render_namespace_event_page.timer", tags=dd_tags
 )
 def dinghy_get_namespace_events():
-    """Render landing page to select namespace for event stream"""
+    """render landing page to select namespace for event stream"""
 
     all_namespaces = _get_all_namespaces()
 
@@ -492,11 +494,13 @@ def form_input_pod_logs():
     pod = request.args.get("pod")
     namespace = request.args.get("namespace", "default")
     tail_lines = request.args.get("tail_lines", TAIL_LINES_DEFAULT)
+    container = request.args.get("container", "")
 
-    logging.debug(f"Retrieving pod logs... {pod} in namespace {namespace}")
+    logging.debug(f"Retrieving pods... {pod} in namespace {namespace}")
+    logging.debug(f"Retrieving container logs... {container} in pod {pod}")
 
     try:
-        ret = _get_pod_logs(pod, namespace, tail_lines)
+        ret = _get_pod_logs(pod, namespace, container, tail_lines)
         resp = render_template("pod_logs_output.html", logs=ret)
 
         return resp
@@ -512,11 +516,13 @@ def form_input_pod_logs_stream(*, tail_lines=TAIL_LINES_DEFAULT):
     """List pods in namespace and click on one to display logs"""
     pod = request.args["pod"]
     namespace = request.args["namespace"]
+    container = request.args.get("container", "")
 
     resp = render_template(
         "pod_logs_output_streaming.html",
         namespace=namespace,
         name=pod,
+        container=container,
         dinghy_ping_web_socket_host=dinghy_ping_web_socket_host,
     )
 
@@ -552,10 +558,12 @@ def log_stream_websocket(ws):
 
     name = request.args["name"]
     namespace = request.args["namespace"]
+    container = request.args["container"]
 
     resp = k8s_client.read_namespaced_pod_log(
         name,
         namespace,
+        container=container,
         tail_lines=TAIL_LINES_DEFAULT,
         follow=True,
         _preload_content=False,
@@ -691,16 +699,28 @@ def _get_deployment_logs(namespace, name, tail_lines=TAIL_LINES_DEFAULT):
     return logs
 
 
-def _get_pod_logs(pod, namespace, tail_lines=TAIL_LINES_DEFAULT):
+def _get_pod_logs(pod, namespace, container, tail_lines=TAIL_LINES_DEFAULT):
     """Read pod logs"""
     k8s_client = client.CoreV1Api()
     ret = []
-    try:
-        ret = k8s_client.read_namespaced_pod_log(
-            pod, namespace, tail_lines=TAIL_LINES_DEFAULT
-        )
-    except ApiException as e:
-        logging.error(f"Exception when calling CoreV1Api->read_namespaced_pod_log: {e}")
+    if container:
+        try:
+            ret = k8s_client.read_namespaced_pod_log(
+                pod, namespace, container=container, tail_lines=tail_lines
+            )
+        except ApiException as e:
+            logging.error(
+                f"Exception HERE when calling CoreV1Api->read_namespaced_pod_log: {e}"
+            )
+    else:
+        try:
+            ret = k8s_client.read_namespaced_pod_log(
+                pod, namespace, tail_lines=tail_lines
+            )
+        except ApiException as e:
+            logging.error(
+                f"Exception when calling CoreV1Api->read_namespaced_pod_log: {e}"
+            )
 
     return ret
 
@@ -755,7 +775,7 @@ def _get_all_namespaces():
 
 
 def _get_all_pods(namespace=None):
-    """Get all pods"""
+    """Get all pods and return dict of pods with their containers and their namespaces"""
     pods = {}
     k8s_client = client.CoreV1Api()
 
@@ -767,7 +787,10 @@ def _get_all_pods(namespace=None):
     for i in ret.items:
         pod = i.metadata.name
         namespace = i.metadata.namespace
-        pods.update({pod: i.metadata.namespace})
+        containers = []
+        for container in i.spec.containers:
+            containers.append(container.name)
+        pods[pod] = dict(namespace=namespace, containers=containers)
 
     return pods
 

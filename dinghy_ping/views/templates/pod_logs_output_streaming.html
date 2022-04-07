@@ -15,7 +15,7 @@ function scrollWin() {
 }
 
 function connect() {
-  var ws = new WebSocket('{{dinghy_ping_web_socket_host}}/ws/logstream?namespace={{namespace}}&name={{name}}');
+  var ws = new WebSocket('{{dinghy_ping_web_socket_host}}/ws/logstream?namespace={{namespace}}&name={{name}}&container={{container}}');
 
   ws.onmessage = function(event) {
     let message = event.data;
