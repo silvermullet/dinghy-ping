@@ -30,4 +30,3 @@ EXPOSE 80/tcp
 
 ENV PYTHONPATH=/app/
 ENTRYPOINT ["./boot.sh"]
-# CMD ddtrace-run python /app/dinghy_ping/services/api.py

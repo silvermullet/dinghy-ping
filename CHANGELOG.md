@@ -4,6 +4,10 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v1.1.1 (2022-03-29)
+- [Zane] 
+  - Cleanup boot.sh and Dockerfile INFO gunicorn log level 
+
 ## v1.1.0 (2022-03-29)
 - [Zane] 
   - Adding support for multiple containers in pods
