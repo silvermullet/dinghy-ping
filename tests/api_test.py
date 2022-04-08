@@ -67,4 +67,4 @@ def test_multiple_domains_request_for_microsoft(api):
 def test_ping_saved_results(api):
     api.requests.get("/ping/http/www.google.com")
     p = service._get_all_pinged_urls()
-    assert "http://www.google.com/" in p
+    assert "google" in p
