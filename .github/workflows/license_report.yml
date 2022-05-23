@@ -1,0 +1,66 @@
+---
+#################################
+#################################
+## 3rd Party License Report    ##
+#################################
+#################################
+name: Run 3rd Party License Report 
+
+#
+# Documentation:
+# https://github.com/dhatim/python-license-check 
+#
+
+#############################
+# Start the job on all push #
+#############################
+on:
+  push:
+    branches-ignore: [master]
+    # Remove the line above to run when pushing to master
+  pull_request:
+    branches: [master]
+
+###############
+# Set the Job #
+###############
+jobs:
+  report:
+    # Name the Job
+    name: 3rd Parth License Report 
+    # Set the agent to run on
+    runs-on: ubuntu-latest 
+
+    ##################
+    # Load all steps #
+    ##################
+    steps:
+      ##########################
+      # Checkout the code base #
+      ##########################
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10.4'
+      
+      - name: Install license report toool 
+        run: |
+          pip install liccheck poetry
+
+      - name: Poetry export lock to requirements.txt 
+        run: poetry export -f requirements.txt --output requirements.txt
+
+      - name: Poetry install 
+        run: |
+          poetry config virtualenvs.create false
+          poetry install --no-ansi --no-interaction
+
+      - name: Run liccheck report 
+        run: |
+          liccheck -r requirements.txt -R liccheck-report.txt
+          echo "#### LICCHECK REPORT ####"
+          echo ""
+          cat liccheck-report.txt
