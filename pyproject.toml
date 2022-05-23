@@ -31,3 +31,27 @@ build-backend = "poetry.masonry.api"
 
 [tool.isort]
 profile = "black"
+
+[tool.liccheck]
+authorized_licenses = [
+  'Mozilla Public License 2.0 (MPL 2.0)',
+  '3-Clause BSD',
+  'BSD',
+  'new BSD',
+  'BSD license',
+  'new BDS license',
+  'simplified BSD',
+  'Apache Software',
+  'Apache',
+  'Apache 2.0',
+  'Apache software license',
+  'gnu LGPL',
+  'LGPL with exceptions or zpl',
+  'ISC license',
+  'ISC license (ISCL)',
+  'MIT license',
+  'zpl 2.1',
+  'MIT',
+  'Python Software Foundation',
+  'ISC'
+]

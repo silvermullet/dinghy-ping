@@ -3,3 +3,5 @@
 __pycache__
 .venv/
 dinghy_ping.egg-info/
+requirements.txt
+liccheck-report.txt
