@@ -4,6 +4,15 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v1.2.0 (2022-06-24)
+- [Zane]
+  - Use wtform validations
+  - remove url access to dns, http and tcp checks (must go through form input)
+  - fix: socket timeouts now work
+  - fix: remove async tcp checks
+  - add dns checks to search history results
+  - remove schema check in code, URLField will not enforce in wtform inputs
+
 ## v1.1.1 (2022-03-29)
 - [Zane] 
   - Cleanup boot.sh and Dockerfile INFO gunicorn log level 

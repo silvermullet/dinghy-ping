@@ -1,32 +1,38 @@
-import asyncio
 import datetime
 import json
 import logging
 import os
 import sys
+import time
+import socket
 import traceback
 from urllib.parse import urlparse
 
 import datadog
 import dns.rdatatype
 from ddtrace import patch, tracer
-from flask import Flask, jsonify, make_response, render_template, request
+from flask import Flask, url_for, redirect, jsonify, make_response, render_template, request
 from flask_sock import Sock
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
 
 from dinghy_ping.models import dinghy_dns
 from dinghy_ping.models.data import DinghyData
+from dinghy_ping.services.forms import HTTPCheckForm, DNSCheckForm, TCPCheckForm
 
 patch(requests=True)
 import requests  # noqa
 
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+
 
 TAIL_LINES_DEFAULT = "100"
 LOGS_PREVIEW_LENGTH = "1000"
 TEMPLATE_DIR = "../views/templates/"
 STATIC_DIR = "../views/static/"
+# Used for form validation
+SECRET_KEY = os.urandom(32)
 
 environment = os.getenv("ENVIRONMENT", "none")
 dd_tags = [f"environment={environment}"]
@@ -83,6 +89,7 @@ api = Flask(
 )
 api.jinja_env.filters["tojson_pretty"] = to_pretty_json
 sock = Sock(api)
+api.config['SECRET_KEY'] = SECRET_KEY
 config.load_incluster_config()
 initialize_datadog()
 
@@ -126,14 +133,61 @@ def dinghy_history():
     return response
 
 
-@api.route("/")
+@api.route("/", methods=["GET", "POST"])
 @datadog.statsd.timed(
     metric="dinghy_ping_events_home_page_load_time.timer", tags=dd_tags
 )
 def dinghy_html():
     """Index route to Dinghy-ping input html form"""
-    result = render_template("index.html", get_all_pinged_urls=_get_all_pinged_urls())
-    return result
+    http_form = HTTPCheckForm()
+    dns_form = DNSCheckForm()
+    tcp_form = TCPCheckForm()
+    get_all_pinged_urls = _get_all_pinged_urls()
+
+    if http_form.validate_on_submit():
+        url = http_form.url.data
+        headers = http_form.headers.data
+        response_code, response_text, response_time_ms, response_headers, request_url = _http_check(url, headers)
+        return render_template(
+            "ping_response.html",
+             request=request_url,
+             domain_response_code=response_code,
+             domain_response_text=response_text,
+             domain_response_headers=response_headers,
+             domain_response_time_ms=response_time_ms,
+        )
+    
+    if dns_form.validate_on_submit():
+        domain = dns_form.domain.data
+        nameserver = dns_form.nameserver.data
+
+        dns_info_A, dns_info_NS, dns_info_MX = _dns_check(domain, nameserver)
+
+        return render_template(
+            "dns_info.html",
+            domain=domain,
+            dns_info_A=dns_info_A,
+            dns_info_NS=dns_info_NS,
+            dns_info_MX=dns_info_MX,
+        )
+
+    if tcp_form.validate_on_submit():
+        tcp_endpoint = tcp_form.tcp_endpoint.data
+        tcp_port = tcp_form.tcp_port.data
+        conn_info = _tcp_check(tcp_endpoint, tcp_port)
+        return render_template(
+            "ping_response_tcp_conn.html",
+            request=tcp_endpoint,
+            port=tcp_port,
+            connection_results=conn_info,
+        )
+    
+    return render_template(
+        "index.html",
+        http_form=http_form,
+        dns_form=dns_form,
+        tcp_form=tcp_form,
+        get_all_pinged_urls=get_all_pinged_urls)
 
 
 @api.route("/ping/domains")
@@ -230,50 +284,46 @@ def domain_response_html(*, protocol, domain):
     return resp
 
 
-@api.route("/form-input")
-def form_input():
-    """Dinghy-ping html input form for http connection"""
-    url = urlparse(request.args["url"])
-    if request.args["headers"]:
-        print(f"here: {request.args['headers']}")
-        headers = json.loads(request.args["headers"])
+def _http_check(url, headers):
+    """
+    Send a request to a url and return response code, body text and response_time_ms
+    """
+    url = urlparse(url)
+    if headers:
+        try:
+            headers = json.loads(headers)
+        except json.JSONDecodeError as e:
+            logger.error(f"Error decoding headers input: {e}")
+            headers = {}
     else:
         headers = {}
-    if url.scheme == "":
-        scheme_notes = "Scheme not given, defaulting to https"
-    else:
-        scheme_notes = f"Scheme {url.scheme} provided"
 
     response_code, response_text, response_time_ms, response_headers = _process_request(
         url.scheme, url.netloc + url.path, url.query, headers
     )
 
-    resp = render_template(
-        "ping_response.html",
-        request=f'{request.args["url"]}',
-        scheme_notes=scheme_notes,
-        domain_response_code=response_code,
-        domain_response_text=response_text,
-        domain_response_headers=response_headers,
-        domain_response_time_ms=response_time_ms,
+    request_url = f"{url.scheme}://{url.netloc}{url.path}"
+
+    return (
+        response_code,
+        response_text,
+        response_time_ms,
+        response_headers,
+        request_url
     )
 
-    return resp
 
-
-@api.route("/form-input-tcp-connection-test")
-@datadog.statsd.timed(
-    metric="dinghy_ping_events_render_tcp_response.timer", tags=dd_tags
-)
-async def form_input_tcp_connection_test():
-    """Form input endpoint for tcp connection test"""
-    logging.basicConfig(level=logging.DEBUG)
-    tcp_endpoint = request.args["tcp-endpoint"]
-    tcp_port = request.args["tcp-port"]
-
+def _tcp_check(tcp_endpoint, tcp_port):
+    """
+    Check tcp endpoint and port, hard timeout at 5 seconds
+    """
+    deadline = time.time() + 5.0
     try:
-        reader, writer = await asyncio.open_connection(host=tcp_endpoint, port=tcp_port)
-        conn_info = f"Connection created to {tcp_endpoint} on port {tcp_port}"
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.settimeout(deadline - time.time())
+            s.connect((tcp_endpoint, tcp_port))
+            conn_info = f"Connection created to {tcp_endpoint} on port {tcp_port}"
+        
         d = DinghyData(
             redis_host,
             domain_response_code="tcp handshake success",
@@ -281,49 +331,37 @@ async def form_input_tcp_connection_test():
             request_url=f"{tcp_endpoint}:{tcp_port}",
         )
         d.save_ping()
-        resp = render_template(
-            "ping_response_tcp_conn.html",
-            request=tcp_endpoint,
-            port=tcp_port,
-            connection_results=conn_info,
+    except Exception as e:
+        conn_info = f"Failed to connect to {tcp_endpoint} on port {tcp_port}: {e}"
+        d = DinghyData(
+            redis_host,
+            domain_response_code=f"tcp handshake failed: {e}",
+            domain_response_time_ms="N/A",
+            request_url=f"{tcp_endpoint}:{tcp_port}",
         )
-    except (asyncio.TimeoutError, ConnectionRefusedError):
-        print("Network port not responding")
-        conn_info = f"Failed to connect to {tcp_endpoint} on port {tcp_port}"
-        resp.status_code = make_response("error connecting to network port", 402)
-        resp = render_template(
-            "ping_response_tcp_conn.html",
-            request=tcp_endpoint,
-            port=tcp_port,
-            connection_results=conn_info,
-        )
+        d.save_ping()
 
-    return resp
+    return conn_info
 
 
-@api.route("/form-input-dns-info")
-@datadog.statsd.timed(
-    metric="dinghy_ping_events_render_dns_response.timer", tags=dd_tags
-)
-def form_input_dns_info():
-    """Form input endpoint for dns info"""
-    domain = request.args["domain"]
-
-    nameserver = request.args.get("nameserver")
+def _dns_check(domain, nameserver):
+    """
+    Check dns resolution results for a given nameserver and domain
+    """
 
     dns_info_A = _gather_dns_A_info(domain, nameserver)
     dns_info_NS = _gather_dns_NS_info(domain, nameserver)
     dns_info_MX = _gather_dns_MX_info(domain, nameserver)
-
-    resp = render_template(
-        "dns_info.html",
-        domain=domain,
-        dns_info_A=dns_info_A,
-        dns_info_NS=dns_info_NS,
-        dns_info_MX=dns_info_MX,
+   
+    d = DinghyData(
+        redis_host,
+        domain_response_code=f"dns lookup for {domain} on {nameserver}",
+        domain_response_time_ms="N/A",
+        request_url=domain,
     )
+    d.save_ping()
 
-    return resp
+    return dns_info_A, dns_info_NS, dns_info_MX
 
 
 @api.route("/get/deployment-details")
