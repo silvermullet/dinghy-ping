@@ -2,23 +2,23 @@ import datetime
 import json
 import logging
 import os
+import socket
 import sys
 import time
-import socket
 import traceback
 from urllib.parse import urlparse
 
 import datadog
 import dns.rdatatype
 from ddtrace import patch, tracer
-from flask import Flask, url_for, redirect, jsonify, make_response, render_template, request
+from flask import Flask, jsonify, make_response, render_template, request
 from flask_sock import Sock
 from kubernetes import client, config, watch
 from kubernetes.client.rest import ApiException
 
 from dinghy_ping.models import dinghy_dns
 from dinghy_ping.models.data import DinghyData
-from dinghy_ping.services.forms import HTTPCheckForm, DNSCheckForm, TCPCheckForm
+from dinghy_ping.services.forms import DNSCheckForm, HTTPCheckForm, TCPCheckForm
 
 patch(requests=True)
 import requests  # noqa
@@ -89,7 +89,7 @@ api = Flask(
 )
 api.jinja_env.filters["tojson_pretty"] = to_pretty_json
 sock = Sock(api)
-api.config['SECRET_KEY'] = SECRET_KEY
+api.config["SECRET_KEY"] = SECRET_KEY
 config.load_incluster_config()
 initialize_datadog()
 
@@ -147,16 +147,22 @@ def dinghy_html():
     if http_form.validate_on_submit():
         url = http_form.url.data
         headers = http_form.headers.data
-        response_code, response_text, response_time_ms, response_headers, request_url = _http_check(url, headers)
+        (
+            response_code,
+            response_text,
+            response_time_ms,
+            response_headers,
+            request_url,
+        ) = _http_check(url, headers)
         return render_template(
             "ping_response.html",
-             request=request_url,
-             domain_response_code=response_code,
-             domain_response_text=response_text,
-             domain_response_headers=response_headers,
-             domain_response_time_ms=response_time_ms,
+            request=request_url,
+            domain_response_code=response_code,
+            domain_response_text=response_text,
+            domain_response_headers=response_headers,
+            domain_response_time_ms=response_time_ms,
         )
-    
+
     if dns_form.validate_on_submit():
         domain = dns_form.domain.data
         nameserver = dns_form.nameserver.data
@@ -181,13 +187,14 @@ def dinghy_html():
             port=tcp_port,
             connection_results=conn_info,
         )
-    
+
     return render_template(
         "index.html",
         http_form=http_form,
         dns_form=dns_form,
         tcp_form=tcp_form,
-        get_all_pinged_urls=get_all_pinged_urls)
+        get_all_pinged_urls=get_all_pinged_urls,
+    )
 
 
 @api.route("/ping/domains")
@@ -309,7 +316,7 @@ def _http_check(url, headers):
         response_text,
         response_time_ms,
         response_headers,
-        request_url
+        request_url,
     )
 
 
@@ -323,7 +330,7 @@ def _tcp_check(tcp_endpoint, tcp_port):
             s.settimeout(deadline - time.time())
             s.connect((tcp_endpoint, tcp_port))
             conn_info = f"Connection created to {tcp_endpoint} on port {tcp_port}"
-        
+
         d = DinghyData(
             redis_host,
             domain_response_code="tcp handshake success",
@@ -352,7 +359,7 @@ def _dns_check(domain, nameserver):
     dns_info_A = _gather_dns_A_info(domain, nameserver)
     dns_info_NS = _gather_dns_NS_info(domain, nameserver)
     dns_info_MX = _gather_dns_MX_info(domain, nameserver)
-   
+
     d = DinghyData(
         redis_host,
         domain_response_code=f"dns lookup for {domain} on {nameserver}",
@@ -609,10 +616,10 @@ def log_stream_websocket(ws):
     while True:
         try:
             line = resp.readline()
-        except asyncio.TimeoutError as e:
+        except Exception as e:
             logging.error(
                 f"""
-            Async timeout server side, will recover from client side {e}
+                issue reading pod logs: {e}
             """
             )
             break
