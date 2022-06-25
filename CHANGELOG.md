@@ -4,6 +4,11 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v1.2.1 (2022-06-24)
+- [Zane]
+  - black, isort, flake8 fixes
+  - fixing event log stream logging wording, remove asyncio reference
+ 
 ## v1.2.0 (2022-06-24)
 - [Zane]
   - Use wtform validations
