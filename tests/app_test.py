@@ -35,14 +35,6 @@ def session(app):
     return app.requests
 
 
-# @pytest.fixture
-# def redis_my(app):
-#    redis_my_proc = factories.redis_proc(port=None)
-#    redis_my = factories.redisdb('redis_my_proc')
-#
-#    return redis_my
-
-
 def test_dinghy_ping_google_http(client):
     r = client.get("/ping/http/google.com")
     assert r.status_code == 200
