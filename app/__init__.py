@@ -55,13 +55,9 @@ def initialize_datadog(dd_tags):
 
 
 def create_app(config_class=Config):
-    # might need static_folder=STATIC_DIR
     app = Flask(__name__, static_folder="templates/static")
-
     app.config.from_object(config_class)
     app.jinja_env.filters["tojson_pretty"] = to_pretty_json
-
-    # app.redis = Redis.from_url(app.config['REDIS_HOST'])
     app.redis = StrictRedis(host=app.config["REDIS_HOST"])
 
     from app.errors import bp as errors_bp
@@ -80,6 +76,7 @@ def create_app(config_class=Config):
         logging.info("TESTING is True, not loading k8s client")
     else:
         config.load_incluster_config()
+
     environment = app.config["ENVIRONMENT"]
     dd_tags = [f"environment={environment}"]
     initialize_datadog(dd_tags)
