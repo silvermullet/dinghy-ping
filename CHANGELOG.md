@@ -4,6 +4,15 @@ This file is used to list changes made in each version of the Dinghy-ping
 
 ## unreleased
 
+## v1.3.0 (2022-07-01)
+- [Zane]
+  - Redesign code to match Flask best practices
+    * use config.py for application configs
+    * create_app function to initialize flask app from configs
+    * route.py for routes, moved dinghy-ping functions to utils
+    * websocket endpoints to ws.py
+  - improve some error handling
+
 ## v1.2.1 (2022-06-24)
 - [Zane]
   - black, isort, flake8 fixes
