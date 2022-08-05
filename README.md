@@ -87,11 +87,20 @@ curl "https://127.0.0.1/deployment-logs/kube-addons/dinghy-ping?json=true"
 
 * requires Docker for Mac 2.x or greater
 * Enable Kubernetes on Docker for Mac under preferences
+* Python 3.x
+* Python Poetry
 * Install [Tilt](https://docs.tilt.dev/install.html)
+
+#### Install Python Poetry
+
+```
+curl -sSL https://install.python-poetry.org | python3 -
+```
 
 #### Tilt
 
 ```
+poetry install
 tilt up
 ```
 Navigate to http://127.0.0.1:8080/

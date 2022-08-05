@@ -6,7 +6,7 @@ authors = ["Zane Williamson <zane.w@hey.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.9"
 redis = "^4.2.0"
 dnspython = "^2.2.1"
 datadog = "^0.44.0"
