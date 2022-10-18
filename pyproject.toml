@@ -17,6 +17,8 @@ kubernetes = "^23.3.0"
 flask-sock = "^0.5.2"
 Flask-WTF = "^1.0.1"
 python-dotenv = "^0.20.0"
+GitPython = "^3.1.29"
+celery = "^5.2.7"
 
 [tool.poetry.dev-dependencies]
 pylint = "^2.13.0"

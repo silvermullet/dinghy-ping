@@ -12,6 +12,10 @@ ENV YOUR_ENV=${YOUR_ENV} \
   DD_AGENT_HOST=localhost \
   DD_DOGSTATSD_SOCKET=""
 
+# Install gpcurl
+COPY install-grpcurl.sh /root/install-grpcurl.sh
+RUN chmod +x /root/install-grpcurl.sh
+RUN /root/install-grpcurl.sh
 
 # System deps:
 RUN pip install "poetry==$POETRY_VERSION"

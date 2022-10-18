@@ -8,7 +8,10 @@ from flask import current_app, jsonify, make_response, render_template, request
 from kubernetes import client
 
 from app.main import bp
-from app.main.forms import DNSCheckForm, HTTPCheckForm, TCPCheckForm
+from app.main.forms import (
+    DNSCheckForm, HTTPCheckForm, TCPCheckForm,
+    GrpcEndpointForm, GrpCurlForm
+)
 from app.utils.k8s import (
     describe_pod,
     get_all_namespaces,
@@ -24,6 +27,7 @@ from app.utils.network import (
     process_request,
     tcp_check,
 )
+from app.utils.grpc_manager import GrpCurl
 
 from .. import default
 
@@ -473,3 +477,40 @@ def dinghy_deployment_logs(*, namespace, name, tail_lines, preview):
         resp = render_template("pod_logs_output.html", logs=logs)
 
     return resp
+
+@bp.route("/grpc-tasks", methods=["GET", "POST"])
+def dinghy_grpc_tasks_landing_page():
+    """Index page for grpc tasks"""
+    grpc_new_endpoint_form = GrpcEndpointForm()
+    grpc_submit_grpcurl = GrpCurlForm()
+    all_current_endpoints = get_all_grpc_endpoints()
+
+    if grpc_new_endpoint_form.validate_on_submit():
+        grpc_endpoint = grpc_new_endpoint_form.grpc_endpoint.data
+        grpc_port = grpc_new_endpoint_form.grpc_port.data
+        grpc_protocol_git_repo = grpc_new_endpoint_form.grpc_protocol_git_repo.data
+        
+        return render_template(
+            "submit_new_grpc_endpoint.html",
+            grpc_endpoint=grpc_endpoint,
+            grpc_port=grpc_port,
+            grpc_protocol_git_repo=grpc_protocol_git_repo,
+        )
+
+    if grpc_submit_grpcurl.validate_on_submit():
+        grpc_endpoint = grpc_submit_grpcurl.grpc_endpoint.data
+        grpc_method = grpc_submit_grpcurl.grpc_method.data
+        json_file_upload = grpc_submit_grpcurl.json_file_upload.data
+
+        return render_template(
+            "submit_grpcurl.html",
+            grpc_endpoint=grpc_endpoint,
+            grpc_method=grpc_method,
+            json_file_upload=json_file_upload,
+        )
+
+    return render_template(
+        "grpc.html",
+        grpc_new_endpoint_form=grpc_new_endpoint_form,
+        all_current_endpoints=all_current_endpoints,
+    )

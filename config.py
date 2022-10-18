@@ -26,3 +26,10 @@ class Config(object):
     MY_APP_NAME = os.environ.get("MY_APP_NAME") or "dinghy-ping"
     MY_CLUSTER_DOMAIN = os.environ.get("MY_CLUSTER_DOMAIN") or "localhost"
     TESTING = os.environ.get("TESTING") or "False"
+    # If using Gitlab a user name for the token is needed, Github will only need a token
+    GIT_USER = os.environ.get("GIT_USER") or ""
+    GIT_TOKEN = os.environ.get("GIT_TOKEN") or ""
+
+    # Celery config
+    CELERY_BROKER_URL = f"redis://{REDIS_HOST}:6379"
+    CELERY_RESULT_BACKEND = f"redis://{REDIS_HOST}:6379"
